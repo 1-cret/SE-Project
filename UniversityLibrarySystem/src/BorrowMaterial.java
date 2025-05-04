@@ -1,5 +1,11 @@
-
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.Calendar;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -11,12 +17,110 @@ import javax.swing.JFrame;
  */
 public class BorrowMaterial extends javax.swing.JFrame {
 
+    private Student student;
+    private DefaultTableModel tableModel;
+
     /**
      * Creates new form BorrowMaterial
      */
     public BorrowMaterial() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setupTable();
+        loadAvailableBooks();
+    }
+    
+    /**
+     * Creates new form BorrowMaterial for a specific student
+     * @param student the Student object who will borrow books
+     */
+    public BorrowMaterial(Student student) {
+        initComponents();
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.student = student;
+        setupTable();
+        loadAvailableBooks();
+    }
+
+    /**
+     * Setup table columns and formatting
+     */
+    private void setupTable() {
+        tableModel = (DefaultTableModel) jTable2.getModel();
+        // Clear existing data
+        tableModel.setRowCount(0);
+        
+        // Ensure column headers are set correctly
+        String[] columnNames = {"ISBN", "Book Name", "Author", "Category", "Location"};
+        tableModel.setColumnIdentifiers(columnNames);
+    }
+    
+    /**
+     * Load available books from the database
+     */
+    private void loadAvailableBooks() {
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Failed to connect to database", "Database Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            // Query to get available books (those with ACTIVE status)
+            String query = "SELECT b.ISBN, b.TITLE, a1.NAME as AUTHOR1, a2.NAME as AUTHOR2, " +
+                           "b.CATEGORY, l.FLOOR, l.SECTION, l.SHELF, l.ROW " +
+                           "FROM BOOK b " +
+                           "LEFT JOIN AUTHOR a1 ON b.AUTHOR1 = a1.AUTHOR_ID " +
+                           "LEFT JOIN AUTHOR a2 ON b.AUTHOR2 = a2.AUTHOR_ID " +
+                           "LEFT JOIN LOCATION l ON b.LOCATION_ID = l.LOCATION_ID " +
+                           "WHERE b.STATUS = 'ACTIVE'";
+            
+            ResultSet rs = DBManager.query(conn, query);
+            
+            tableModel.setRowCount(0);
+            
+            int rowCount = 0;
+            while (rs != null && rs.next()) {
+                rowCount++;
+                int isbn = rs.getInt("ISBN");
+                String title = rs.getString("TITLE");
+                
+                // Combine authors if there are multiple
+                String author1 = rs.getString("AUTHOR1");
+                String author2 = rs.getString("AUTHOR2");
+                String authors = author1;
+                if (author2 != null && !author2.isEmpty()) {
+                    authors += ", " + author2;
+                }
+                
+                String category = rs.getString("CATEGORY");
+                
+                // Format location information
+                int floor = rs.getInt("FLOOR");
+                String section = rs.getString("SECTION");
+                String shelf = rs.getString("SHELF");
+                float row = rs.getFloat("ROW");
+                String location = "Floor " + floor + ", " + section + " section, " + 
+                                 "Shelf " + shelf + ", Row " + row;
+                
+                // Add row to table
+                tableModel.addRow(new Object[]{
+                    isbn, title, authors, category, location
+                });
+            }
+            
+            // If no records were found, add a message
+            if (rowCount == 0) {
+                tableModel.addRow(new Object[]{"No available books found", "", "", "", ""});
+            }
+            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error loading books: " + ex.getMessage(), 
+                                         "Database Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error loading books: " + ex.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
     }
 
     /**
@@ -170,7 +274,76 @@ public class BorrowMaterial extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void confirmBorrowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmBorrowActionPerformed
-        // TODO add your handling code here:
+        // Check if a book is selected
+        int selectedRow = jTable2.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a book to borrow.", 
+                                         "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Check if we have a student object
+        if (student == null) {
+            JOptionPane.showMessageDialog(this, "No student information available. Please login again.", 
+                                         "Authentication Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Get selected book information
+        int isbn = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+        String bookTitle = tableModel.getValueAt(selectedRow, 1).toString();
+        
+        // Create a new borrow record
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Failed to connect to database", 
+                                         "Database Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            // Calculate dates
+            Date borrowDate = new Date(); // Current date
+            
+            // Set due date (14 days from today)
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(borrowDate);
+            calendar.add(Calendar.DAY_OF_MONTH, 14);
+            Date dueDate = calendar.getTime();
+            
+            // Insert borrow record
+            java.sql.Date sqlBorrowDate = new java.sql.Date(borrowDate.getTime());
+            java.sql.Date sqlDueDate = new java.sql.Date(dueDate.getTime());
+            
+            String insertQuery = "INSERT INTO BORROW (BORROW_DATE, DUE_DATE, STATUS, RENEWAL_COUNT, FINE_AMOUNT, STUDENT_ID, BOOK_ID) " +
+                                 "VALUES ('" + sqlBorrowDate + "', '" + sqlDueDate + "', 'Borrowed', 0, 0.0, " + 
+                                 student.getUserID() + ", " + isbn + ")";
+            
+            int result = DBManager.updateQuery(conn, insertQuery);
+            
+            if (result > 0) {
+                // Update book status to unavailable
+                String updateBookQuery = "UPDATE BOOK SET STATUS = 'DISABLED' WHERE ISBN = " + isbn;
+                DBManager.updateQuery(conn, updateBookQuery);
+                
+                JOptionPane.showMessageDialog(this, 
+                    "Book '" + bookTitle + "' has been borrowed successfully.\n" +
+                    "Due date: " + sqlDueDate, 
+                    "Borrow Successful", JOptionPane.INFORMATION_MESSAGE);
+                
+                // Refresh the table to remove the borrowed book
+                loadAvailableBooks();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to borrow the book. Please try again.", 
+                                             "Borrow Failed", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error borrowing book: " + ex.getMessage(), 
+                                         "Database Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error borrowing book: " + ex.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
     }//GEN-LAST:event_confirmBorrowActionPerformed
 
     private void cancelBorrowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBorrowActionPerformed
