@@ -255,7 +255,7 @@ public class StudentSignUp extends javax.swing.JFrame {
                 SignUpEmailField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
                 SignUpPasswordField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
                 
-                JOptionPane.showMessageDialog(this, "Sign up successful! Redirecting to your dashboard.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Sign up successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 
                 // Redirect to StudentView on success (instead of login screen)
                 this.dispose();

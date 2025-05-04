@@ -54,6 +54,12 @@ public class StudentController{
     public boolean login() {
         return student.login();
     }
+    public Student getStudent() {
+        return student;
+    }
+    public void setStudent(Student student) {
+        this.student = student;
+    }
     
     /**
      * Validates and processes student signup

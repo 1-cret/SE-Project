@@ -297,7 +297,7 @@ public class Login extends javax.swing.JFrame {
                 StudentController student = new StudentController(email, password);
                 if (student.login()) {
                     this.dispose();
-                    new StudentView().setVisible(true);
+                    new StudentView(student).setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid student credentials", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 }

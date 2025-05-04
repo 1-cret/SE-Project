@@ -1,5 +1,8 @@
-
 import javax.swing.JFrame;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -11,12 +14,96 @@ import javax.swing.JFrame;
  */
 public class StudentView extends javax.swing.JFrame {
 
+    private StudentController studentC;
+    private Student student;
+    private int totalBorrowings = 0;
+    private int returnedCount = 0;
+    private int borrowedCount = 0;
+    private int overdueCount = 0;
+
     /**
-     * Creates new form StudentView
+     * Creates new form StudentView with default settings
      */
     public StudentView() {
         initComponents();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+    
+    /**
+     * Creates new form StudentView with student data
+     * @param student The student object containing user data
+     */
+    public StudentView(StudentController studentC) {
+        initComponents();
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        this.student = studentC.getStudent();
+        
+        // Display student information
+        updateStudentInfo();
+        
+        // Load borrowing statistics
+        loadBorrowingStatistics();
+    }
+    
+    /**
+     * Updates the student information panel with data from the student object
+     */
+    private void updateStudentInfo() {
+        if (student != null) {
+            jLabel13.setText(String.valueOf(student.getUserID()));
+            jLabel14.setText(student.getName());
+            jLabel15.setText(student.getEmail());
+        }
+    }
+    
+    /**
+     * Loads borrowing statistics from the database
+     */
+    private void loadBorrowingStatistics() {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                // Get total borrowings
+                String totalQuery = "SELECT COUNT(*) AS TOTAL FROM BORROW WHERE STUDENT_ID = " + student.getUserID();
+                ResultSet totalResult = DBManager.query(conn, totalQuery);
+                if (totalResult != null && totalResult.next()) {
+                    totalBorrowings = totalResult.getInt("TOTAL");
+                    jLabel2.setText(String.valueOf(totalBorrowings));
+                }
+                
+                // Get returned books count
+                String returnedQuery = "SELECT COUNT(*) AS RETURNED FROM BORROW WHERE STUDENT_ID = " + student.getUserID() + 
+                                       " AND STATUS = 'Returned'";
+                ResultSet returnedResult = DBManager.query(conn, returnedQuery);
+                if (returnedResult != null && returnedResult.next()) {
+                    returnedCount = returnedResult.getInt("RETURNED");
+                    jLabel4.setText(String.valueOf(returnedCount));
+                }
+                
+                // Get currently borrowed books count
+                String borrowedQuery = "SELECT COUNT(*) AS BORROWED FROM BORROW WHERE STUDENT_ID = " + student.getUserID() + 
+                                       " AND STATUS = 'Borrowed'";
+                ResultSet borrowedResult = DBManager.query(conn, borrowedQuery);
+                if (borrowedResult != null && borrowedResult.next()) {
+                    borrowedCount = borrowedResult.getInt("BORROWED");
+                    jLabel6.setText(String.valueOf(borrowedCount));
+                }
+                
+                // Get overdue books count
+                String overdueQuery = "SELECT COUNT(*) AS OVERDUE FROM BORROW WHERE STUDENT_ID = " + student.getUserID() + 
+                                      " AND STATUS = 'Overdue'";
+                ResultSet overdueResult = DBManager.query(conn, overdueQuery);
+                if (overdueResult != null && overdueResult.next()) {
+                    overdueCount = overdueResult.getInt("OVERDUE");
+                    jLabel8.setText(String.valueOf(overdueCount));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading borrowing statistics: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
     }
 
     /**
@@ -378,13 +465,20 @@ public class StudentView extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void borrowMatBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrowMatBtnMouseClicked
+        // Create a BorrowMaterial instance without student parameter since it's not implemented yet
         BorrowMaterial borrow = new BorrowMaterial();
         borrow.setLocationRelativeTo(this);
         borrow.setVisible(true);
     }//GEN-LAST:event_borrowMatBtnMouseClicked
 
     private void viewHistBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewHistBtnMouseClicked
+        // Create a StudentBorrowingHistory instance without student parameter since it's not implemented yet
         StudentBorrowingHistory borrHist = new StudentBorrowingHistory();
+        // Pass the student ID to load their specific history
+        if (student != null) {
+            // The implementation will need to be updated to handle student data
+            borrHist.setTitle("Borrowing History - " + student.getName());
+        }
         borrHist.setLocationRelativeTo(this);
         borrHist.setVisible(true);
     }//GEN-LAST:event_viewHistBtnMouseClicked
