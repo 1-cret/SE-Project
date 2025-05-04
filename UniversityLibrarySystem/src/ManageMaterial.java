@@ -342,21 +342,21 @@ public class ManageMaterial extends javax.swing.JFrame {
             conn = DBManager.openCon();
             if (conn != null) {
                 // Query to get all books with author and location information
-                String query = "SELECT b.ISBN, b.BOOK_TITLE, b.STATUS, b.CATEGORY, " +
+                String query = "SELECT b.ISBN, b.TITLE, b.STATUS, b.CATEGORY, " +
                         "a1.NAME AS AUTHOR1, a2.NAME AS AUTHOR2, " +
                         "l.FLOOR, l.SECTION, l.SHELF, l.ROW " +
                         "FROM BOOK b " +
                         "LEFT JOIN AUTHOR a1 ON b.AUTHOR1_ID = a1.AUTHOR_ID " +
                         "LEFT JOIN AUTHOR a2 ON b.AUTHOR2_ID = a2.AUTHOR_ID " +
                         "LEFT JOIN LOCATION l ON b.LOCATION_ID = l.LOCATION_ID " +
-                        "ORDER BY b.BOOK_TITLE ASC";
+                        "ORDER BY b.TITLE ASC";
                 
                 ResultSet rs = DBManager.query(conn, query);
                 
                 while (rs != null && rs.next()) {
                     // Get data from the result set
                     String isbn = rs.getString("ISBN");
-                    String title = rs.getString("BOOK_TITLE");
+                    String title = rs.getString("TITLE");
                     String status = rs.getString("STATUS");
                     String category = rs.getString("CATEGORY");
                     
@@ -446,7 +446,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             conn = DBManager.openCon();
             if (conn != null) {
                 // Insert book
-                String insertQuery = "INSERT INTO BOOK (ISBN, BOOK_TITLE, STATUS, CATEGORY, AUTHOR1_ID, AUTHOR2_ID, LOCATION_ID) " +
+                String insertQuery = "INSERT INTO BOOK (ISBN, TITLE, STATUS, CATEGORY, AUTHOR1_ID, AUTHOR2_ID, LOCATION_ID) " +
                         "VALUES ('" + isbn + "', '" + title + "', 'Available', '" + category + "', " + 
                         author1Id + ", " + (author2Id > 0 ? author2Id : "NULL") + ", " + locationId + ")";
                 
@@ -527,19 +527,60 @@ public class ManageMaterial extends javax.swing.JFrame {
     }
     
     /**
-     * Create a new location entry
+     * Create a new location entry based on user input
      */
     private int createLocation() {
+        // Get user input for location details
+        String floorStr = JOptionPane.showInputDialog(this, "Enter Floor Number (1-5):", "Book Location", JOptionPane.QUESTION_MESSAGE);
+        if (floorStr == null) {
+            return 0; // User cancelled
+        }
+        
+        // Validate floor input
+        int floor;
+        try {
+            floor = Integer.parseInt(floorStr);
+            if (floor < 1 || floor > 5) {
+                JOptionPane.showMessageDialog(this, "Floor must be between 1 and 5.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                return 0;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for floor.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            return 0;
+        }
+        
+        String section = JOptionPane.showInputDialog(this, "Enter Section (e.g., A, B, Science, Fiction):", "Book Location", JOptionPane.QUESTION_MESSAGE);
+        if (section == null || section.trim().isEmpty()) {
+            return 0; // User cancelled or empty input
+        }
+        
+        String shelf = JOptionPane.showInputDialog(this, "Enter Shelf Number or ID:", "Book Location", JOptionPane.QUESTION_MESSAGE);
+        if (shelf == null || shelf.trim().isEmpty()) {
+            return 0; // User cancelled or empty input
+        }
+        
+        String rowStr = JOptionPane.showInputDialog(this, "Enter Row Number:", "Book Location", JOptionPane.QUESTION_MESSAGE);
+        if (rowStr == null) {
+            return 0; // User cancelled
+        }
+        
+        // Validate row input
+        float row;
+        try {
+            row = Float.parseFloat(rowStr);
+            if (row <= 0) {
+                JOptionPane.showMessageDialog(this, "Row must be a positive number.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                return 0;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for row.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            return 0;
+        }
+        
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Simple location assignment - could be improved with actual location selection
-                int floor = 1 + (int)(Math.random() * 3); // Random floor between 1-3
-                String section = "Section " + (char)('A' + (int)(Math.random() * 6)); // Random section A-F
-                String shelf = String.valueOf(1 + (int)(Math.random() * 20)); // Random shelf 1-20
-                float row = 1 + (int)(Math.random() * 10); // Random row 1-10
-                
                 String insertQuery = "INSERT INTO LOCATION (FLOOR, SECTION, SHELF, ROW) " +
                         "VALUES (" + floor + ", '" + section + "', '" + shelf + "', " + row + ")";
                 
@@ -553,6 +594,8 @@ public class ManageMaterial extends javax.swing.JFrame {
             }
         } catch (SQLException e) {
             System.out.println("Error creating location: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error creating location: " + e.getMessage(), 
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
         } finally {
             DBManager.closeCon(conn);
         }
@@ -606,7 +649,7 @@ public class ManageMaterial extends javax.swing.JFrame {
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                String updateQuery = "UPDATE BOOK SET BOOK_TITLE = '" + newTitle + "', " +
+                String updateQuery = "UPDATE BOOK SET TITLE = '" + newTitle + "', " +
                         "CATEGORY = '" + newCategory + "', " +
                         "STATUS = '" + newStatus + "' " +
                         "WHERE ISBN = '" + isbn + "'";
