@@ -39,4 +39,15 @@ public class DBManager {
             return null;
         }
     }
+
+    public static ResultSet updateQuery(Connection conn, String query) {
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(query);
+            return stmt.getResultSet();
+        } catch (SQLException e) {
+            System.out.println("Query Error: " + e.getMessage());
+            return null;
+        }
+    }
 }
