@@ -114,7 +114,7 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
                 rowCount++;
                 int borrowId = rs.getInt("BORROW_ID");
                 String bookTitle = rs.getString("TITLE");
-                
+                // s
                 // Format dates for display
                 String borrowDate = formatDate(rs.getDate("BORROW_DATE"));
                 String dueDate = formatDate(rs.getDate("DUE_DATE"));
