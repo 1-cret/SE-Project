@@ -20,6 +20,14 @@ public class Student extends User {
         this.borrowList = borrowList;
     }
 
+    public void setBorrowList(ArrayList<Borrow> borrowList) {
+        this.borrowList = borrowList;
+    }
+
+    public ArrayList<Borrow> getBorrowList() {
+        return borrowList;
+    }
+
     public boolean login() {
         Connection conn = DBManager.openCon();
         if (conn == null) {
@@ -48,34 +56,5 @@ public class Student extends User {
         return false;
     }
 
-    public void setBorrowList(ArrayList<Borrow> borrowList) {
-        this.borrowList = borrowList;
-    }
-
-    public ArrayList<Borrow> getBorrowList() {
-        return borrowList;
-    }
-
-    public boolean signUp(String name, String email, String password) {
-        Connection conn = DBManager.openCon();
-            if (conn == null) {
-                return false;
-            }
-        try {
-            
-            String currID = "SELECT ID FROM STUDENT ORDER BY DESC FETCH FIRST 1 ROWS ONLY";
-            ResultSet rs = st.executeQuery(currID);
-            int nextID = Integer.parseInt(currID);
-            String sql = String.format("INSERT INTO STUDENT (ID, NAME, EMAIL, PASSWORD, STATUS)"
-                    + " VALUES ('%d', '%s', '%s', '%s', TRUE)",
-                    nextID, name, email, password);
-            st.executeUpdate(sql);
-            st.close();
-            conn.close();
-            return true;
-        } catch (SQLException ex) {
-            System.out.println("Connect failed ! " + ex.getMessage());
-            return false;
-        }
-    }
+    
 }

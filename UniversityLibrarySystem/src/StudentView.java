@@ -5,7 +5,6 @@ import javax.swing.JFrame;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-
 /**
  *
  * @author Omayr
@@ -254,6 +253,11 @@ public class StudentView extends javax.swing.JFrame {
         });
 
         viewHistBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/VBH(Border).png"))); // NOI18N
+        viewHistBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                viewHistBtnMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -378,6 +382,12 @@ public class StudentView extends javax.swing.JFrame {
         borrow.setLocationRelativeTo(this);
         borrow.setVisible(true);
     }//GEN-LAST:event_borrowMatBtnMouseClicked
+
+    private void viewHistBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewHistBtnMouseClicked
+        StudentBorrowingHistory borrHist = new StudentBorrowingHistory();
+        borrHist.setLocationRelativeTo(this);
+        borrHist.setVisible(true);
+    }//GEN-LAST:event_viewHistBtnMouseClicked
 
     /**
      * @param args the command line arguments
