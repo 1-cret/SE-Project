@@ -280,14 +280,14 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         }
     }
 
-    private void renewBorrowBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_renewBorrowBtnActionPerformed
+    private void renewBorrowBtnActionPerformed(java.awt.event.ActionEvent evt) throws SQLException {//GEN-FIRST:event_renewBorrowBtnActionPerformed
         renewBorrowing();
     }//GEN-LAST:event_renewBorrowBtnActionPerformed
     
     /**
      * Renew a borrowing period for a selected book
      */
-    private void renewBorrowing() {
+    private void renewBorrowing() throws SQLException {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a borrowing record to renew.", 
@@ -358,10 +358,6 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
                             "Renewal Failed", JOptionPane.ERROR_MESSAGE);
                 }
             }
-        } catch (SQLException e) {
-            System.out.println("Error renewing borrowing: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error renewing borrowing: " + e.getMessage(), 
-                    "Database Error", JOptionPane.ERROR_MESSAGE);
         } finally {
             DBManager.closeCon(conn);
         }
@@ -472,7 +468,12 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         renewBorrowBtn.setText("Renew Borrowing");
         renewBorrowBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                renewBorrowBtnActionPerformed(evt);
+                try {
+                    renewBorrowBtnActionPerformed(evt);
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
