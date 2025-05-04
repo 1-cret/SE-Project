@@ -73,7 +73,7 @@ public class BorrowMaterial extends javax.swing.JFrame {
                            "LEFT JOIN AUTHOR a1 ON b.AUTHOR1 = a1.AUTHOR_ID " +
                            "LEFT JOIN AUTHOR a2 ON b.AUTHOR2 = a2.AUTHOR_ID " +
                            "LEFT JOIN LOCATION l ON b.LOCATION_ID = l.LOCATION_ID " +
-                           "WHERE b.STATUS = 'ACTIVE'";
+                           "WHERE b.STATUS = 1";
             
             ResultSet rs = DBManager.query(conn, query);
             
