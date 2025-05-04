@@ -290,7 +290,7 @@ public class BorrowMaterial extends javax.swing.JFrame {
         }
         
         // Get selected book information
-        int isbn = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+        String isbn = tableModel.getValueAt(selectedRow, 0).toString();
         String bookTitle = tableModel.getValueAt(selectedRow, 1).toString();
         
         // Create a new borrow record
