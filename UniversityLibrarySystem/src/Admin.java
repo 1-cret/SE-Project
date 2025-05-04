@@ -74,10 +74,10 @@ public class Admin {
         this.status = status;
     }
     
-    public boolean login(){
+    public Admin login(){
         Connection conn = DBManager.openCon();
         if (conn == null) {
-            return false;
+            return null;
         }
 
         String query = "SELECT * FROM ADMIN WHERE EMAIL = '" + this.getEmail() + "' AND PASSWORD = '" + this.getPassword() + "'";
@@ -91,7 +91,7 @@ public class Admin {
                 this.setPassword(res.getString("PASSWORD"));
                 Boolean f = res.getBoolean("STATUS");
                 this.setStatus(f==true?AdminController.Status.ACTIVE:AdminController.Status.DISABLED);
-                return true;
+                return this;
             }
         } catch (SQLException ex) {
             System.out.println("Login Error: " + ex.getMessage());
@@ -99,6 +99,6 @@ public class Admin {
             DBManager.closeCon(conn);
         }
 
-        return false;
+        return null;
     }
 }

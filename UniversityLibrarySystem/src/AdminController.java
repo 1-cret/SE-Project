@@ -53,8 +53,11 @@ public class AdminController {
         this.admin = new Admin(this.userID, this.name, this.email, this.password, this.role, this.status);
     }
     
-    public boolean login() {
-        return admin.login();
+    public AdminController login() {
+        if(admin.login() != null){
+            return this;
+        }
+        return null;
     }
     
     // Get all admins from database
