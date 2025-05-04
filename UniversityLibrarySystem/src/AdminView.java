@@ -1,4 +1,3 @@
-
 import javax.swing.JFrame;
 
 /*
@@ -11,12 +10,28 @@ import javax.swing.JFrame;
  */
 public class AdminView extends javax.swing.JFrame {
 
+    private AdminController adminController;
+    
     /**
      * Creates new form adminView
      */
     public AdminView() {
         initComponents();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        adminController = new AdminController();
+        updateDashboardStats();
+    }
+    
+    /**
+     * Updates the dashboard statistics with real data from the database
+     */
+    private void updateDashboardStats() {
+        int[] stats = adminController.getSystemStats();
+        
+        // Update the labels with actual statistics
+        jLabel6.setText(String.valueOf(stats[0])); // Returns
+        jLabel8.setText(String.valueOf(stats[1])); // Users
+        jLabel10.setText(String.valueOf(stats[2])); // Books
     }
 
     /**

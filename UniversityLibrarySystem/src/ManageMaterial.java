@@ -586,7 +586,6 @@ public class ManageMaterial extends javax.swing.JFrame {
                 
                 DBManager.updateQuery(conn, insertQuery);
                 
-                // Get the new location ID
                 ResultSet rs = DBManager.query(conn, "SELECT MAX(LOCATION_ID) AS LOCATION_ID FROM LOCATION");
                 if (rs != null && rs.next()) {
                     return rs.getInt("LOCATION_ID");

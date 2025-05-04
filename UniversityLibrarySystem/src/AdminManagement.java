@@ -1,5 +1,7 @@
-
+import java.util.ArrayList;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -11,12 +13,28 @@ import javax.swing.JFrame;
  */
 public class AdminManagement extends javax.swing.JFrame {
 
+    private AdminController adminController;
+    private ArrayList<Admin> adminList;
+    private DefaultTableModel tableModel;
+    
     /**
      * Creates new form AdminManagement
      */
     public AdminManagement() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        // Initialize controller and setup table
+        adminController = new AdminController();
+        setupTable();
+        loadAdmins();
+        
+        // Add action listener for the Add Admin button
+        addAdminBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addAdminBtnActionPerformed(evt);
+            }
+        });
     }
 
     /**
@@ -143,13 +161,171 @@ public class AdminManagement extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void updateAdminBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateAdminBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_updateAdminBtnActionPerformed
-
-    private void deleteAdminBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteAdminBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_deleteAdminBtnActionPerformed
+    /**
+     * Setup table model with proper columns
+     */
+    private void setupTable() {
+        // Set up table model
+        tableModel = (DefaultTableModel) jTable1.getModel();
+        
+        // Ensure column headers are properly set
+        String[] columnNames = {"ID", "Name", "Email", "Status"};
+        tableModel.setColumnIdentifiers(columnNames);
+        
+        // Clear any existing rows
+        tableModel.setRowCount(0);
+    }
+    
+    /**
+     * Load all admins from database and display in table
+     */
+    private void loadAdmins() {
+        // Clear existing rows
+        tableModel.setRowCount(0);
+        
+        // Get all admins from database
+        adminList = adminController.getAllAdmins();
+        
+        // Populate table with admin data
+        for (Admin admin : adminList) {
+            String status = admin.getStatus() == AdminController.Status.ACTIVE ? "Active" : "Disabled";
+            Object[] rowData = {admin.getUserID(), admin.getName(), admin.getEmail(), status};
+            tableModel.addRow(rowData);
+        }
+    }
+    
+    /**
+     * Show dialog to add a new admin
+     */
+    private void addAdminBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        // Create input fields
+        String name = JOptionPane.showInputDialog(this, "Enter admin name:", "Add Admin", JOptionPane.PLAIN_MESSAGE);
+        if (name == null || name.trim().isEmpty()) {
+            return; // User cancelled
+        }
+        
+        String email = JOptionPane.showInputDialog(this, "Enter admin email:", "Add Admin", JOptionPane.PLAIN_MESSAGE);
+        if (email == null || email.trim().isEmpty()) {
+            return; // User cancelled
+        }
+        
+        String password = JOptionPane.showInputDialog(this, "Enter admin password:", "Add Admin", JOptionPane.PLAIN_MESSAGE);
+        if (password == null || password.trim().isEmpty()) {
+            return; // User cancelled
+        }
+        
+        // Add admin to database
+        boolean success = adminController.addAdmin(name, email, password, AdminController.Status.ACTIVE);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Admin added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadAdmins(); // Refresh the table
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to add admin.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Update selected admin information
+     */
+    private void updateAdminBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an admin to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the selected admin
+        int adminId = (int) jTable1.getValueAt(selectedRow, 0);
+        Admin selectedAdmin = null;
+        
+        for (Admin admin : adminList) {
+            if (admin.getUserID() == adminId) {
+                selectedAdmin = admin;
+                break;
+            }
+        }
+        
+        if (selectedAdmin == null) {
+            JOptionPane.showMessageDialog(this, "Error finding admin data.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Get updated information
+        String name = JOptionPane.showInputDialog(this, "Enter new name:", selectedAdmin.getName());
+        if (name == null) {
+            return; // User cancelled
+        }
+        
+        String email = JOptionPane.showInputDialog(this, "Enter new email:", selectedAdmin.getEmail());
+        if (email == null) {
+            return; // User cancelled
+        }
+        
+        String password = JOptionPane.showInputDialog(this, "Enter new password (leave empty to keep current):", "");
+        if (password == null) {
+            return; // User cancelled
+        }
+        
+        // If password is empty, keep the current one
+        if (password.trim().isEmpty()) {
+            password = selectedAdmin.getPassword();
+        }
+        
+        // Get current status and allow user to change it
+        String[] statusOptions = {"Active", "Disabled"};
+        int currentStatusIndex = (selectedAdmin.getStatus() == AdminController.Status.ACTIVE) ? 0 : 1;
+        int statusChoice = JOptionPane.showOptionDialog(this, "Select status:",
+                "Update Admin", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+                null, statusOptions, statusOptions[currentStatusIndex]);
+        
+        if (statusChoice == -1) {
+            return; // User cancelled
+        }
+        
+        AdminController.Status newStatus = (statusChoice == 0) ? AdminController.Status.ACTIVE : AdminController.Status.DISABLED;
+        
+        // Update admin in database
+        boolean success = adminController.updateAdmin(adminId, name, email, password, newStatus);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Admin updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadAdmins(); // Refresh the table
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to update admin.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Delete selected admin from database
+     */
+    private void deleteAdminBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an admin to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the selected admin ID
+        int adminId = (int) jTable1.getValueAt(selectedRow, 0);
+        
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to delete this admin?", 
+                "Confirm Deletion", 
+                JOptionPane.YES_NO_OPTION);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean success = adminController.deleteAdmin(adminId);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Admin deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                loadAdmins(); // Refresh the table
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to delete admin.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     /**
      * @param args the command line arguments
