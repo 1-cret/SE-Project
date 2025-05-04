@@ -453,7 +453,7 @@ public class StudentView extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void borrowMatBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrowMatBtnMouseClicked
-        BorrowMaterial borrow = new BorrowMaterial();
+        BorrowMaterial borrow = new BorrowMaterial(this.student);
         borrow.setLocationRelativeTo(this);
         borrow.setVisible(true);
     }//GEN-LAST:event_borrowMatBtnMouseClicked
