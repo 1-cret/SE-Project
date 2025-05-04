@@ -70,8 +70,8 @@ public class BorrowMaterial extends javax.swing.JFrame {
             String query = "SELECT b.ISBN, b.TITLE, a1.NAME as AUTHOR1, a2.NAME as AUTHOR2, " +
                            "b.CATEGORY, l.FLOOR, l.SECTION, l.SHELF, l.ROW " +
                            "FROM BOOK b " +
-                           "LEFT JOIN AUTHOR a1 ON b.AUTHOR1 = a1.AUTHOR_ID " +
-                           "LEFT JOIN AUTHOR a2 ON b.AUTHOR2 = a2.AUTHOR_ID " +
+                           "LEFT JOIN AUTHOR a1 ON b.AUTHOR1_ID = a1.AUTHOR_ID " +
+                           "LEFT JOIN AUTHOR a2 ON b.AUTHOR2_ID = a2.AUTHOR_ID " +
                            "LEFT JOIN LOCATION l ON b.LOCATION_ID = l.LOCATION_ID " +
                            "WHERE b.STATUS = true";
             
