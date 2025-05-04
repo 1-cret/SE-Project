@@ -2,6 +2,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -99,6 +102,138 @@ public class Librarian {
             DBManager.closeCon(conn);
         }
 
+        return null;
+    }
+    
+    // Get all librarians from database
+    public static List<Librarian> getAllLibrarians() {
+        Connection conn = DBManager.openCon();
+        List<Librarian> librarians = new ArrayList<>();
+        
+        if (conn == null) {
+            return librarians;
+        }
+        
+        String query = "SELECT * FROM LIBRARIAN";
+        try {
+            ResultSet rs = DBManager.query(conn, query);
+            while (rs != null && rs.next()) {
+                int id = rs.getInt("ID");
+                String name = rs.getString("NAME");
+                String email = rs.getString("EMAIL");
+                String password = rs.getString("PASSWORD");
+                boolean isActive = rs.getBoolean("STATUS");
+                LibrarianController.Status status = isActive ? 
+                    LibrarianController.Status.ACTIVE : 
+                    LibrarianController.Status.DISABLED;
+                
+                Librarian librarian = new Librarian(id, name, email, password, "librarian", status);
+                librarians.add(librarian);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error fetching librarians: " + ex.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+        
+        return librarians;
+    }
+    
+    // Add new librarian to database
+    public boolean addLibrarian() {
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            return false;
+        }
+        
+        String query = "INSERT INTO LIBRARIAN (NAME, EMAIL, PASSWORD, STATUS) VALUES ('" 
+                + this.name + "', '" 
+                + this.email + "', '" 
+                + this.password + "', " 
+                + (this.status == LibrarianController.Status.ACTIVE ? "TRUE" : "FALSE") + ")";
+        
+        try {
+            int result = DBManager.updateQuery(conn, query);
+            return result > 0;
+        } catch (Exception ex) {
+            System.out.println("Error adding librarian: " + ex.getMessage());
+            return false;
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    // Update existing librarian in database
+    public boolean updateLibrarian() {
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            return false;
+        }
+        
+        String query = "UPDATE LIBRARIAN SET NAME = '" + this.name 
+                + "', EMAIL = '" + this.email 
+                + "', PASSWORD = '" + this.password 
+                + "', STATUS = " + (this.status == LibrarianController.Status.ACTIVE ? "TRUE" : "FALSE") 
+                + " WHERE ID = " + this.userID;
+        
+        try {
+            int result = DBManager.updateQuery(conn, query);
+            return result > 0;
+        } catch (Exception ex) {
+            System.out.println("Error updating librarian: " + ex.getMessage());
+            return false;
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    // Delete librarian from database
+    public boolean deleteLibrarian() {
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            return false;
+        }
+        
+        String query = "DELETE FROM LIBRARIAN WHERE ID = " + this.userID;
+        
+        try {
+            int result = DBManager.updateQuery(conn, query);
+            return result > 0;
+        } catch (Exception ex) {
+            System.out.println("Error deleting librarian: " + ex.getMessage());
+            return false;
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    // Get librarian by ID
+    public static Librarian getLibrarianById(int id) {
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            return null;
+        }
+        
+        String query = "SELECT * FROM LIBRARIAN WHERE ID = " + id;
+        try {
+            ResultSet rs = DBManager.query(conn, query);
+            if (rs != null && rs.next()) {
+                String name = rs.getString("NAME");
+                String email = rs.getString("EMAIL");
+                String password = rs.getString("PASSWORD");
+                boolean isActive = rs.getBoolean("STATUS");
+                LibrarianController.Status status = isActive ? 
+                    LibrarianController.Status.ACTIVE : 
+                    LibrarianController.Status.DISABLED;
+                
+                return new Librarian(id, name, email, password, "librarian", status);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error fetching librarian: " + ex.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+        
         return null;
     }
 }

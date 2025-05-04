@@ -1,5 +1,7 @@
-
+import java.util.List;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -11,12 +13,178 @@ import javax.swing.JFrame;
  */
 public class LibrarianManagement extends javax.swing.JFrame {
 
+    private LibrarianController librarianController;
+    private DefaultTableModel tableModel;
+    
     /**
      * Creates new form LibrarianManagement
      */
     public LibrarianManagement() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.librarianController = new LibrarianController();
+        setupTable();
+        loadLibrarians();
+    }
+    
+    /**
+     * Setup the table model with the appropriate columns
+     */
+    private void setupTable() {
+        tableModel = (DefaultTableModel) jTable1.getModel();
+        // Clear existing data
+        tableModel.setRowCount(0);
+    }
+    
+    /**
+     * Load all librarians from the database
+     */
+    private void loadLibrarians() {
+        // Clear existing data
+        tableModel.setRowCount(0);
+        
+        // Fetch all librarians
+        List<Librarian> librarians = librarianController.getAllLibrarians();
+        
+        // Add rows to the table
+        for (Librarian lib : librarians) {
+            String status = lib.getStatus() == LibrarianController.Status.ACTIVE ? "Active" : "Disabled";
+            tableModel.addRow(new Object[]{
+                lib.getUserID(),
+                lib.getName(),
+                lib.getEmail(),
+                status
+            });
+        }
+    }
+    
+    /**
+     * Display an add librarian dialog
+     */
+    private void showAddLibrarianDialog() {
+        // Create input dialog for the new librarian
+        String name = JOptionPane.showInputDialog(this, "Enter librarian name:");
+        if (name == null || name.trim().isEmpty()) {
+            return;
+        }
+        
+        String email = JOptionPane.showInputDialog(this, "Enter librarian email:");
+        if (email == null || email.trim().isEmpty()) {
+            return;
+        }
+        
+        String password = JOptionPane.showInputDialog(this, "Enter librarian password:");
+        if (password == null || password.trim().isEmpty()) {
+            return;
+        }
+        
+        int statusChoice = JOptionPane.showConfirmDialog(this, 
+                "Is this librarian active?", 
+                "Librarian Status", 
+                JOptionPane.YES_NO_OPTION);
+        LibrarianController.Status status = (statusChoice == JOptionPane.YES_OPTION) ? 
+                LibrarianController.Status.ACTIVE : 
+                LibrarianController.Status.DISABLED;
+        
+        // Add the librarian to the database
+        boolean success = librarianController.addLibrarian(name, email, password, status);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Librarian added successfully!");
+            loadLibrarians(); // Refresh the table
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to add librarian.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Display an update librarian dialog
+     */
+    private void showUpdateLibrarianDialog() {
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a librarian to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the selected librarian ID
+        int librarianId = (int) jTable1.getValueAt(selectedRow, 0);
+        
+        // Fetch the librarian from the database
+        Librarian selectedLibrarian = librarianController.getLibrarianById(librarianId);
+        if (selectedLibrarian == null) {
+            JOptionPane.showMessageDialog(this, "Could not find the selected librarian.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Get new values for the librarian
+        String name = JOptionPane.showInputDialog(this, "Enter new name:", selectedLibrarian.getName());
+        if (name == null) {
+            return;
+        }
+        
+        String email = JOptionPane.showInputDialog(this, "Enter new email:", selectedLibrarian.getEmail());
+        if (email == null) {
+            return;
+        }
+        
+        String password = JOptionPane.showInputDialog(this, "Enter new password (leave empty to keep current):");
+        if (password == null) {
+            return;
+        }
+        // If password is empty, keep the old one
+        if (password.trim().isEmpty()) {
+            password = selectedLibrarian.getPassword();
+        }
+        
+        int statusChoice = JOptionPane.showConfirmDialog(this, 
+                "Is this librarian active?", 
+                "Librarian Status", 
+                JOptionPane.YES_NO_OPTION);
+        LibrarianController.Status status = (statusChoice == JOptionPane.YES_OPTION) ? 
+                LibrarianController.Status.ACTIVE : 
+                LibrarianController.Status.DISABLED;
+        
+        // Update the librarian in the database
+        boolean success = librarianController.updateLibrarian(librarianId, name, email, password, status);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Librarian updated successfully!");
+            loadLibrarians(); // Refresh the table
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to update librarian.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Delete the selected librarian
+     */
+    private void deleteSelectedLibrarian() {
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a librarian to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the selected librarian ID
+        int librarianId = (int) jTable1.getValueAt(selectedRow, 0);
+        
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to delete this librarian?", 
+                "Confirm Deletion", 
+                JOptionPane.YES_NO_OPTION);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean success = librarianController.deleteLibrarian(librarianId);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Librarian deleted successfully!");
+                loadLibrarians(); // Refresh the table
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to delete librarian.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     /**
@@ -26,6 +194,7 @@ public class LibrarianManagement extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
@@ -41,6 +210,11 @@ public class LibrarianManagement extends javax.swing.JFrame {
 
         addLibrariantn.setBackground(new java.awt.Color(51, 153, 255));
         addLibrariantn.setText("Add Librarian");
+        addLibrariantn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addLibrariantnActionPerformed(evt);
+            }
+        });
 
         updateLibrarianBtn.setBackground(new java.awt.Color(51, 153, 255));
         updateLibrarianBtn.setText("Update Librarian");
@@ -143,12 +317,16 @@ public class LibrarianManagement extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateLibrarianBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateLibrarianBtnActionPerformed
-        // TODO add your handling code here:
+        showUpdateLibrarianDialog();
     }//GEN-LAST:event_updateLibrarianBtnActionPerformed
 
     private void deleteLibrarianBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteLibrarianBtnActionPerformed
-        // TODO add your handling code here:
+        deleteSelectedLibrarian();
     }//GEN-LAST:event_deleteLibrarianBtnActionPerformed
+    
+    private void addLibrariantnActionPerformed(java.awt.event.ActionEvent evt) {
+        showAddLibrarianDialog();
+    }
 
     /**
      * @param args the command line arguments

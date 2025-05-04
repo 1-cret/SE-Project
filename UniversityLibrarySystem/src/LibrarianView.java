@@ -51,6 +51,7 @@ public class LibrarianView extends javax.swing.JFrame {
         loadBooksCount();
         loadAuthorsCount();
         loadWarningsCount();
+        loadBorrowDetailStats();
     }
     
     /**
@@ -70,6 +71,40 @@ public class LibrarianView extends javax.swing.JFrame {
             }
         } catch (SQLException e) {
             System.out.println("Error loading borrowings count: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Loads the detailed borrowing statistics (borrowed, returned, overdue)
+     */
+    private void loadBorrowDetailStats() {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                // Get counts for each borrow status
+                String borrowedQuery = "SELECT COUNT(*) AS TOTAL FROM BORROW WHERE BORROW_STATUS = 'Borrowed'";
+                ResultSet borrowedRs = DBManager.query(conn, borrowedQuery);
+                if (borrowedRs != null && borrowedRs.next()) {
+                    borrowedCount = borrowedRs.getInt("TOTAL");
+                }
+                
+                String returnedQuery = "SELECT COUNT(*) AS TOTAL FROM BORROW WHERE BORROW_STATUS = 'Returned'";
+                ResultSet returnedRs = DBManager.query(conn, returnedQuery);
+                if (returnedRs != null && returnedRs.next()) {
+                    returnedCount = returnedRs.getInt("TOTAL");
+                }
+                
+                String overdueQuery = "SELECT COUNT(*) AS TOTAL FROM BORROW WHERE BORROW_STATUS = 'Overdue'";
+                ResultSet overdueRs = DBManager.query(conn, overdueQuery);
+                if (overdueRs != null && overdueRs.next()) {
+                    overdueCount = overdueRs.getInt("TOTAL");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading borrow status counts: " + e.getMessage());
         } finally {
             DBManager.closeCon(conn);
         }
@@ -148,7 +183,6 @@ public class LibrarianView extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
