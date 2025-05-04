@@ -1,4 +1,3 @@
-
 import javax.swing.JOptionPane;
 
 /*
@@ -203,44 +202,35 @@ public class StudentSignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_SignUpEmailFieldActionPerformed
  
     private void StudentloginbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StudentloginbtnActionPerformed
+        // Get form data
         String name = SignUpNameField.getText().trim();
-    String email = SignUpEmailField.getText().trim();
-    String password = new String(SignUpPasswordField.getPassword());
+        String email = SignUpEmailField.getText().trim();
+        String password = new String(SignUpPasswordField.getPassword()).trim();
 
-    if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "All fields are required!");
-        return;
-    }
-
-    Student student = new Student(0); // dummy userID
-    boolean success = student.signUp(name, email, password);
-
-    if (success) {
-        JOptionPane.showMessageDialog(this, "Sign up successful!");
-        // Redirect to login or main screen
-    } else {
-        JOptionPane.showMessageDialog(this, "Sign up failed. Please try again.");
-    }
-//        String name = SignUpNameField.getText();
-//        String email = SignUpEmailField.getText();
-//        char[] password1 = SignUpPasswordField.getPassword(); 
-//        String password = String.copyValueOf(password1);
-//        Student s1 = null;
-//        s1.setName(name);
-//        s1.setEmail(email);
-//        s1.setPassword(password);
-//        
-//        s1.signUp(name, email, password);
-//        if (s1!= null)
-//        {
-//            Customer_Info f2 = new Customer_Info(cust);
-//            f2.setVisible(true);
-//            this.dispose();
-//           
-//        }
+        // Validate input fields
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
-//        else
-//            JOptionPane.showMessageDialog(this, "Invalid username or password");
+        // Basic email validation
+        if (!email.contains("@") || !email.contains(".")) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid email address", "Invalid Email", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Create a new Student instance and attempt signup
+        Student student = new Student(0); // Initialize with temporary ID
+        boolean success = student.signUp(name, email, password);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Sign up successful! Please login with your credentials.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            // Redirect to login page
+            this.dispose();
+            new Login().setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Sign up failed. Email may already be in use or there was a database error.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_StudentloginbtnActionPerformed
 
     private void LoginLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LoginLabelMouseClicked
