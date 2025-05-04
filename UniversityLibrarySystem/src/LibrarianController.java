@@ -23,7 +23,7 @@ public class LibrarianController {
     private String role;
     private Status status;
     
-    // Default constructor
+    
     public LibrarianController() {
         this.userID = 0;
         this.name = "";
@@ -60,12 +60,12 @@ public class LibrarianController {
         }
     }
     
-    // Get all librarians
+    
     public List<Librarian> getAllLibrarians() {
         return Librarian.getAllLibrarians();
     }
     
-    // Add a new librarian
+    
     public boolean addLibrarian(String name, String email, String password, Status status) {
         this.name = name;
         this.email = email;
@@ -75,7 +75,7 @@ public class LibrarianController {
         return this.librarian.addLibrarian();
     }
     
-    // Update an existing librarian
+    
     public boolean updateLibrarian(int id, String name, String email, String password, Status status) {
         this.userID = id;
         this.name = name;
@@ -86,13 +86,13 @@ public class LibrarianController {
         return this.librarian.updateLibrarian();
     }
     
-    // Delete a librarian
+    
     public boolean deleteLibrarian(int id) {
         this.librarian = new Librarian(id, "", "", "", "librarian", null);
         return this.librarian.deleteLibrarian();
     }
     
-    // Get librarian by ID
+    
     public Librarian getLibrarianById(int id) {
         return Librarian.getLibrarianById(id);
     }

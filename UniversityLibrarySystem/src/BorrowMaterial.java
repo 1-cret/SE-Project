@@ -66,7 +66,7 @@ public class BorrowMaterial extends javax.swing.JFrame {
         }
         
         try {
-            // Query to get available books (those with ACTIVE status)
+            
             String query = "SELECT b.ISBN, b.TITLE, a1.NAME as AUTHOR1, a2.NAME as AUTHOR2, " +
                            "b.CATEGORY, l.FLOOR, l.SECTION, l.SHELF, l.ROW " +
                            "FROM BOOK b " +
@@ -74,7 +74,7 @@ public class BorrowMaterial extends javax.swing.JFrame {
                            "LEFT JOIN AUTHOR a2 ON b.AUTHOR2_ID = a2.AUTHOR_ID " +
                            "LEFT JOIN LOCATION l ON b.LOCATION_ID = l.LOCATION_ID " +
                            "WHERE b.STATUS = true";
-            // UUU
+            
             ResultSet rs = DBManager.query(conn, query);
             
             tableModel.setRowCount(0);
@@ -85,7 +85,7 @@ public class BorrowMaterial extends javax.swing.JFrame {
                 String isbn = rs.getString("ISBN");
                 String title = rs.getString("TITLE");
                 
-                // Combine authors if there are multiple
+                
                 String author1 = rs.getString("AUTHOR1");
                 String author2 = rs.getString("AUTHOR2");
                 String authors = author1;
@@ -95,7 +95,7 @@ public class BorrowMaterial extends javax.swing.JFrame {
                 
                 String category = rs.getString("CATEGORY");
                 
-                // Format location information
+                
                 int floor = rs.getInt("FLOOR");
                 String section = rs.getString("SECTION");
                 String shelf = rs.getString("SHELF");
@@ -103,13 +103,13 @@ public class BorrowMaterial extends javax.swing.JFrame {
                 String location = "Floor " + floor + ", " + section + " section, " + 
                                  "Shelf " + shelf + ", Row " + row;
                 
-                // Add row to table
+                
                 tableModel.addRow(new Object[]{
                     isbn, title, authors, category, location
                 });
             }
             
-            // If no records were found, add a message
+            
             if (rowCount == 0) {
                 tableModel.addRow(new Object[]{"No available books found", "", "", "", ""});
             }
@@ -274,7 +274,6 @@ public class BorrowMaterial extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void confirmBorrowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmBorrowActionPerformed
-        // Check if a book is selected
         int selectedRow = jTable2.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a book to borrow.", 
@@ -282,18 +281,16 @@ public class BorrowMaterial extends javax.swing.JFrame {
             return;
         }
         
-        // Check if we have a student object
         if (student == null) {
             JOptionPane.showMessageDialog(this, "No student information available. Please login again.", 
                                          "Authentication Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Get selected book information
+        
         String isbn = tableModel.getValueAt(selectedRow, 0).toString();
         String bookTitle = tableModel.getValueAt(selectedRow, 1).toString();
         
-        // Use the Borrow class to create a new borrow record
         boolean success = Borrow.borrowBook(student.getUserID(), isbn);
         
         if (success) {
