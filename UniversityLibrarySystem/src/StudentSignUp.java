@@ -207,29 +207,60 @@ public class StudentSignUp extends javax.swing.JFrame {
         String email = SignUpEmailField.getText().trim();
         String password = new String(SignUpPasswordField.getPassword()).trim();
 
-        // Validate input fields
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        // Create controller instance and attempt signup
+        StudentController controller = new StudentController(null, null, null, null, null, null);
+        StudentController.Status status = controller.signUp(name, email, password);
         
-        // Basic email validation
-        if (!email.contains("@") || !email.contains(".")) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid email address", "Invalid Email", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Create a new Student instance and attempt signup
-        Student student = new Student(0); // Initialize with temporary ID
-        boolean success = student.signUp(name, email, password);
-
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Sign up successful! Please login with your credentials.", "Success", JOptionPane.INFORMATION_MESSAGE);
-            // Redirect to login page
-            this.dispose();
-            new Login().setVisible(true);
-        } else {
-            JOptionPane.showMessageDialog(this, "Sign up failed. Email may already be in use or there was a database error.", "Error", JOptionPane.ERROR_MESSAGE);
+        // Handle signup result based on status
+        switch (status) {
+            case EMPTY_FIELDS:
+                JOptionPane.showMessageDialog(this, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
+                // Set red border on empty fields for visual feedback
+                if (name.isEmpty()) {
+                    SignUpNameField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+                } else {
+                    SignUpNameField.setBorder(javax.swing.UIManager.getLookAndFeelDefaults().getBorder("TextField.border"));
+                }
+                
+                if (email.isEmpty()) {
+                    SignUpEmailField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+                } else {
+                    SignUpEmailField.setBorder(javax.swing.UIManager.getLookAndFeelDefaults().getBorder("TextField.border"));
+                }
+                
+                if (password.isEmpty()) {
+                    SignUpPasswordField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+                } else {
+                    SignUpPasswordField.setBorder(javax.swing.UIManager.getLookAndFeelDefaults().getBorder("TextField.border"));
+                }
+                break;
+            
+            case INVALID_EMAIL:
+                JOptionPane.showMessageDialog(this, "Please enter a valid email address", "Invalid Email", JOptionPane.ERROR_MESSAGE);
+                SignUpEmailField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+                break;
+            
+            case EMAIL_EXISTS:
+                JOptionPane.showMessageDialog(this, "This email is already registered. Please login or use a different email.", "Email in Use", JOptionPane.WARNING_MESSAGE);
+                SignUpEmailField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.ORANGE, 2));
+                break;
+            
+            case DATABASE_ERROR:
+                JOptionPane.showMessageDialog(this, "A database error occurred. Please try again later.", "System Error", JOptionPane.ERROR_MESSAGE);
+                break;
+            
+            case SUCCESS:
+                // Set green borders for success visual feedback
+                SignUpNameField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
+                SignUpEmailField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
+                SignUpPasswordField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
+                
+                JOptionPane.showMessageDialog(this, "Sign up successful! Redirecting to your dashboard.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                
+                // Redirect to StudentView on success (instead of login screen)
+                this.dispose();
+                new StudentView().setVisible(true);
+                break;
         }
     }//GEN-LAST:event_StudentloginbtnActionPerformed
 
