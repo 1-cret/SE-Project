@@ -53,7 +53,11 @@ public class StudentController{
     
     public StudentController login() {
         this.student = student.login();
-        return this;
+        if(student != null) {
+            return this;
+        } else {
+            return null;
+        }
     }
     public Student getStudent() {
         return student;

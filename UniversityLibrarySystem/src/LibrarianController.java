@@ -52,7 +52,11 @@ public class LibrarianController {
     
     public LibrarianController login() {
         this.librarian = librarian.login();
-        return this;
+        if(librarian != null) {
+            return this;
+        } else {
+            return null;
+        }
     }
     
     public Librarian getLibrarian() {
