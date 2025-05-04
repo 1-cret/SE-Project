@@ -1,5 +1,9 @@
-
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -11,12 +15,17 @@ import javax.swing.JFrame;
  */
 public class ManageMaterial extends javax.swing.JFrame {
 
+    private DefaultTableModel tableModel;
+    private Book selectedBook;
+
     /**
      * Creates new form ManageMaterial
      */
     public ManageMaterial() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setupTable();
+        loadBooks();
     }
 
     /**
@@ -163,7 +172,12 @@ public class ManageMaterial extends javax.swing.JFrame {
         jButton1.setText("Add Book");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                try {
+                    jButton1ActionPerformed(evt);
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -173,7 +187,12 @@ public class ManageMaterial extends javax.swing.JFrame {
         jButton2.setText("Update Book");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                try {
+                    jButton2ActionPerformed(evt);
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -183,7 +202,12 @@ public class ManageMaterial extends javax.swing.JFrame {
         jButton3.setText("Delete Book");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                try {
+                    jButton3ActionPerformed(evt);
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -246,16 +270,16 @@ public class ManageMaterial extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_cancelBorrowActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) throws SQLException {//GEN-FIRST:event_jButton1ActionPerformed
+        addBook();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) throws SQLException {//GEN-FIRST:event_jButton2ActionPerformed
+        updateBook();
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) throws SQLException {//GEN-FIRST:event_jButton3ActionPerformed
+        deleteBook();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
@@ -291,6 +315,392 @@ public class ManageMaterial extends javax.swing.JFrame {
                 new ManageMaterial().setVisible(true);
             }
         });
+    }
+
+    /**
+     * Set up the table model and columns
+     */
+    private void setupTable() {
+        tableModel = (DefaultTableModel) jTable2.getModel();
+        // Clear existing data
+        tableModel.setRowCount(0);
+        
+        // Set column headers
+        String[] columnNames = {"ISBN", "Book Title", "Authors", "Category", "Status", "Location"};
+        tableModel.setColumnIdentifiers(columnNames);
+    }
+    
+    /**
+     * Load books from the database
+     */
+    private void loadBooks() {
+        // Clear existing rows
+        tableModel.setRowCount(0);
+        
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                // Query to get all books with author and location information
+                String query = "SELECT b.ISBN, b.BOOK_TITLE, b.STATUS, b.CATEGORY, " +
+                        "a1.NAME AS AUTHOR1, a2.NAME AS AUTHOR2, " +
+                        "l.FLOOR, l.SECTION, l.SHELF, l.ROW " +
+                        "FROM BOOK b " +
+                        "LEFT JOIN AUTHOR a1 ON b.AUTHOR1_ID = a1.AUTHOR_ID " +
+                        "LEFT JOIN AUTHOR a2 ON b.AUTHOR2_ID = a2.AUTHOR_ID " +
+                        "LEFT JOIN LOCATION l ON b.LOCATION_ID = l.LOCATION_ID " +
+                        "ORDER BY b.BOOK_TITLE ASC";
+                
+                ResultSet rs = DBManager.query(conn, query);
+                
+                while (rs != null && rs.next()) {
+                    // Get data from the result set
+                    String isbn = rs.getString("ISBN");
+                    String title = rs.getString("BOOK_TITLE");
+                    String status = rs.getString("STATUS");
+                    String category = rs.getString("CATEGORY");
+                    
+                    // Combine authors
+                    String author1 = rs.getString("AUTHOR1");
+                    String author2 = rs.getString("AUTHOR2");
+                    String authors = author1;
+                    if (author2 != null && !author2.isEmpty()) {
+                        authors += ", " + author2;
+                    }
+                    
+                    // Format location information
+                    String location = "";
+                    int floor = rs.getInt("FLOOR");
+                    String section = rs.getString("SECTION");
+                    String shelf = rs.getString("SHELF");
+                    float row = rs.getFloat("ROW");
+                    
+                    if (!rs.wasNull()) {
+                        location = "Floor " + floor + ", " + section + " section, Shelf " + shelf + ", Row " + row;
+                    }
+                    
+                    // Add row to the table
+                    tableModel.addRow(new Object[]{
+                        isbn, title, authors, category, status, location
+                    });
+                }
+                
+                // If no books were found, show a message
+                if (tableModel.getRowCount() == 0) {
+                    tableModel.addRow(new Object[]{"No books found", "", "", "", "", ""});
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading books: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading books: " + e.getMessage(), 
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Add a new book to the database
+     */
+    private void addBook() throws SQLException {
+        // Create a dialog to get new book information
+        String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
+        if (isbn == null || isbn.trim().isEmpty()) {
+            return; // User cancelled
+        }
+        
+        // Check if ISBN already exists
+        if (isbnExists(isbn)) {
+            JOptionPane.showMessageDialog(this, "A book with this ISBN already exists.", 
+                    "Duplicate ISBN", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        String title = JOptionPane.showInputDialog(this, "Enter Book Title:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
+        if (title == null || title.trim().isEmpty()) {
+            return;
+        }
+        
+        String category = JOptionPane.showInputDialog(this, "Enter Category:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
+        if (category == null) {
+            return;
+        }
+        
+        String author1 = JOptionPane.showInputDialog(this, "Enter Primary Author:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
+        if (author1 == null) {
+            return;
+        }
+        
+        String author2 = JOptionPane.showInputDialog(this, "Enter Secondary Author (optional):", "Add New Book", JOptionPane.QUESTION_MESSAGE);
+        
+        // Get or create author IDs
+        int author1Id = getOrCreateAuthor(author1);
+        int author2Id = author2 != null && !author2.trim().isEmpty() ? getOrCreateAuthor(author2) : 0;
+        
+        // Create location entry
+        int locationId = createLocation();
+        
+        // Insert book record
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                // Insert book
+                String insertQuery = "INSERT INTO BOOK (ISBN, BOOK_TITLE, STATUS, CATEGORY, AUTHOR1_ID, AUTHOR2_ID, LOCATION_ID) " +
+                        "VALUES ('" + isbn + "', '" + title + "', 'Available', '" + category + "', " + 
+                        author1Id + ", " + (author2Id > 0 ? author2Id : "NULL") + ", " + locationId + ")";
+                
+                int result = DBManager.updateQuery(conn, insertQuery);
+                
+                if (result > 0) {
+                    JOptionPane.showMessageDialog(this, "Book added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    loadBooks(); // Refresh the table
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to add the book.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Check if a book with the given ISBN exists
+     */
+    private boolean isbnExists(String isbn) {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String query = "SELECT COUNT(*) AS COUNT FROM BOOK WHERE ISBN = '" + isbn + "'";
+                ResultSet rs = DBManager.query(conn, query);
+                
+                if (rs != null && rs.next()) {
+                    return rs.getInt("COUNT") > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking ISBN: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+        return false;
+    }
+    
+    /**
+     * Get an author ID or create a new author
+     */
+    private int getOrCreateAuthor(String authorName) {
+        if (authorName == null || authorName.trim().isEmpty()) {
+            return 0;
+        }
+        
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                // Check if author exists
+                String query = "SELECT AUTHOR_ID FROM AUTHOR WHERE NAME = '" + authorName + "'";
+                ResultSet rs = DBManager.query(conn, query);
+                
+                if (rs != null && rs.next()) {
+                    return rs.getInt("AUTHOR_ID");
+                }
+                
+                // Author doesn't exist, create new
+                String bio = ""; // Empty bio for now
+                String insertQuery = "INSERT INTO AUTHOR (NAME, BIO) VALUES ('" + authorName + "', '" + bio + "')";
+                DBManager.updateQuery(conn, insertQuery);
+                
+                // Get the new author ID
+                rs = DBManager.query(conn, "SELECT MAX(AUTHOR_ID) AS AUTHOR_ID FROM AUTHOR");
+                if (rs != null && rs.next()) {
+                    return rs.getInt("AUTHOR_ID");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error with author: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+        return 0;
+    }
+    
+    /**
+     * Create a new location entry
+     */
+    private int createLocation() {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                // Simple location assignment - could be improved with actual location selection
+                int floor = 1 + (int)(Math.random() * 3); // Random floor between 1-3
+                String section = "Section " + (char)('A' + (int)(Math.random() * 6)); // Random section A-F
+                String shelf = String.valueOf(1 + (int)(Math.random() * 20)); // Random shelf 1-20
+                float row = 1 + (int)(Math.random() * 10); // Random row 1-10
+                
+                String insertQuery = "INSERT INTO LOCATION (FLOOR, SECTION, SHELF, ROW) " +
+                        "VALUES (" + floor + ", '" + section + "', '" + shelf + "', " + row + ")";
+                
+                DBManager.updateQuery(conn, insertQuery);
+                
+                // Get the new location ID
+                ResultSet rs = DBManager.query(conn, "SELECT MAX(LOCATION_ID) AS LOCATION_ID FROM LOCATION");
+                if (rs != null && rs.next()) {
+                    return rs.getInt("LOCATION_ID");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error creating location: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+        return 0;
+    }
+    
+    /**
+     * Update an existing book
+     */
+    private void updateBook() throws SQLException {
+        int selectedRow = jTable2.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a book to update.", 
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        String isbn = (String) jTable2.getValueAt(selectedRow, 0);
+        String currentTitle = (String) jTable2.getValueAt(selectedRow, 1);
+        String currentCategory = (String) jTable2.getValueAt(selectedRow, 3);
+        String currentStatus = (String) jTable2.getValueAt(selectedRow, 4);
+        
+        // Get updated information
+        String newTitle = JOptionPane.showInputDialog(this, "Enter Updated Title:", currentTitle);
+        if (newTitle == null) {
+            return; // User cancelled
+        }
+        
+        String newCategory = JOptionPane.showInputDialog(this, "Enter Updated Category:", currentCategory);
+        if (newCategory == null) {
+            return;
+        }
+        
+        // Status options
+        String[] statusOptions = {"Available", "Unavailable", "Reserved", "In Maintenance"};
+        String newStatus = (String) JOptionPane.showInputDialog(
+                this, 
+                "Select Book Status:", 
+                "Update Book Status", 
+                JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                statusOptions, 
+                currentStatus);
+        
+        if (newStatus == null) {
+            return;
+        }
+        
+        // Update the book in the database
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String updateQuery = "UPDATE BOOK SET BOOK_TITLE = '" + newTitle + "', " +
+                        "CATEGORY = '" + newCategory + "', " +
+                        "STATUS = '" + newStatus + "' " +
+                        "WHERE ISBN = '" + isbn + "'";
+                
+                int result = DBManager.updateQuery(conn, updateQuery);
+                
+                if (result > 0) {
+                    JOptionPane.showMessageDialog(this, "Book updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    loadBooks(); // Refresh the table
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update the book.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Delete a book from the database
+     */
+    private void deleteBook() throws SQLException {
+        int selectedRow = jTable2.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a book to delete.", 
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        String isbn = (String) jTable2.getValueAt(selectedRow, 0);
+        String title = (String) jTable2.getValueAt(selectedRow, 1);
+        
+        // Check if the book is currently borrowed
+        if (isBookBorrowed(isbn)) {
+            JOptionPane.showMessageDialog(this, "This book is currently borrowed and cannot be deleted.", 
+                    "Cannot Delete", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to delete the book '" + title + "' (ISBN: " + isbn + ")?", 
+                "Confirm Deletion", 
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.WARNING_MESSAGE);
+        
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        
+        // Delete the book
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String deleteQuery = "DELETE FROM BOOK WHERE ISBN = '" + isbn + "'";
+                
+                int result = DBManager.updateQuery(conn, deleteQuery);
+                
+                if (result > 0) {
+                    JOptionPane.showMessageDialog(this, "Book deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    loadBooks(); // Refresh the table
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete the book.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Check if a book is currently borrowed
+     */
+    private boolean isBookBorrowed(String isbn) {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String query = "SELECT COUNT(*) AS COUNT FROM BORROW " +
+                        "WHERE BOOK_ID = '" + isbn + "' AND RETURN_DATE IS NULL";
+                
+                ResultSet rs = DBManager.query(conn, query);
+                
+                if (rs != null && rs.next()) {
+                    return rs.getInt("COUNT") > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking if book is borrowed: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+        return false;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

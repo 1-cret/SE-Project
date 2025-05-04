@@ -280,6 +280,93 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         }
     }
 
+    private void renewBorrowBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_renewBorrowBtnActionPerformed
+        renewBorrowing();
+    }//GEN-LAST:event_renewBorrowBtnActionPerformed
+    
+    /**
+     * Renew a borrowing period for a selected book
+     */
+    private void renewBorrowing() {
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a borrowing record to renew.", 
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the borrow ID and other details
+        int borrowId = (int) jTable1.getValueAt(selectedRow, 0);
+        String status = (String) jTable1.getValueAt(selectedRow, 10);
+        int renewalCount = (int) jTable1.getValueAt(selectedRow, 8);
+        String bookTitle = (String) jTable1.getValueAt(selectedRow, 2);
+        
+        // Check if the book is already returned
+        if (status.equalsIgnoreCase("Returned")) {
+            JOptionPane.showMessageDialog(this, "Cannot renew a book that has already been returned.", 
+                    "Already Returned", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Check if renewal limit is reached (assuming max is 3)
+        if (renewalCount >= 3) {
+            JOptionPane.showMessageDialog(this, "This book has already been renewed the maximum number of times (3).", 
+                    "Renewal Limit Reached", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Ask for confirmation
+        int confirm = JOptionPane.showConfirmDialog(this, 
+                "Renew borrowing period for book '" + bookTitle + "'?", 
+                "Confirm Renewal", 
+                JOptionPane.YES_NO_OPTION);
+        
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        
+        // Calculate new due date (14 days from now)
+        java.util.Date currentDate = new java.util.Date();
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        calendar.setTime(currentDate);
+        calendar.add(java.util.Calendar.DAY_OF_MONTH, 14);
+        java.util.Date newDueDate = calendar.getTime();
+        
+        // Format for SQL
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String formattedNewDueDate = dateFormat.format(newDueDate);
+        
+        // Update the borrow record
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                // Update due date and increment renewal count
+                String updateQuery = "UPDATE BORROW SET DUE_DATE = '" + formattedNewDueDate + "', " +
+                        "RENEWAL_COUNT = " + (renewalCount + 1) + ", " +
+                        "BORROW_STATUS = 'Borrowed' " + // Reset to 'Borrowed' in case it was 'Overdue'
+                        "WHERE BORROW_ID = " + borrowId;
+                
+                int result = DBManager.updateQuery(conn, updateQuery);
+                
+                if (result > 0) {
+                    JOptionPane.showMessageDialog(this, "Borrowing period renewed successfully!\nNew due date: " + formattedNewDueDate, 
+                            "Renewal Successful", JOptionPane.INFORMATION_MESSAGE);
+                    loadBorrowingRecords(); // Refresh the data
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to renew borrowing period.", 
+                            "Renewal Failed", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error renewing borrowing: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error renewing borrowing: " + e.getMessage(), 
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -383,6 +470,11 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         renewBorrowBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         renewBorrowBtn.setForeground(new java.awt.Color(255, 255, 255));
         renewBorrowBtn.setText("Renew Borrowing");
+        renewBorrowBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                renewBorrowBtnActionPerformed(evt);
+            }
+        });
 
         searchButton.setBackground(new java.awt.Color(51, 153, 255));
         searchButton.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
