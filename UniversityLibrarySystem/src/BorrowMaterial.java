@@ -317,13 +317,13 @@ public class BorrowMaterial extends javax.swing.JFrame {
             
             String insertQuery = "INSERT INTO BORROW (BORROW_DATE, DUE_DATE, RENEWAL_COUNT, FINE_AMOUNT, STUDENT_ID, BOOK_ID) " +
                                  "VALUES ('" + sqlBorrowDate + "', '" + sqlDueDate + "', 0, 0.0, " + 
-                                 student.getUserID() + ", '" + isbn + "'')";
+                                 student.getUserID() + ", '" + isbn + "')";
             
             int result = DBManager.updateQuery(conn, insertQuery);
             
             if (result > 0) {
                 // Update book status to unavailable
-                String updateBookQuery = "UPDATE BOOK SET STATUS = 'DISABLED' WHERE ISBN = " + isbn;
+                String updateBookQuery = "UPDATE BOOK SET STATUS = 'DISABLED' WHERE ISBN = '" + isbn+"'";
                 DBManager.updateQuery(conn, updateBookQuery);
                 
                 JOptionPane.showMessageDialog(this, 
