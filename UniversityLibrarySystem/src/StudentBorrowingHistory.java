@@ -93,7 +93,7 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
         Statement stmt = null;
         ResultSet rs = null;
         try {
-            String query = "SELECT b.BORROW_ID, bk.BOOK_TITLE, b.BORROW_DATE, b.DUE_DATE, " +
+            String query = "SELECT b.BORROW_ID, bk.TITLE, b.BORROW_DATE, b.DUE_DATE, " +
                            "b.RETURN_DATE, b.RENEWAL_COUNT, b.FINE_AMOUNT " +
                            "FROM BORROW b JOIN BOOK bk ON b.BOOK_ID = bk.ISBN " +
                            "WHERE b.STUDENT_ID = " + studentID + " " +
@@ -113,7 +113,7 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
                 // Add test row
                 rowCount++;
                 int borrowId = rs.getInt("BORROW_ID");
-                String bookTitle = rs.getString("BOOK_TITLE");
+                String bookTitle = rs.getString("TITLE");
                 
                 // Format dates for display
                 String borrowDate = formatDate(rs.getDate("BORROW_DATE"));
