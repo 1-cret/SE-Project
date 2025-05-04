@@ -315,8 +315,8 @@ public class BorrowMaterial extends javax.swing.JFrame {
             java.sql.Date sqlBorrowDate = new java.sql.Date(borrowDate.getTime());
             java.sql.Date sqlDueDate = new java.sql.Date(dueDate.getTime());
             
-            String insertQuery = "INSERT INTO BORROW (BORROW_DATE, DUE_DATE, STATUS, RENEWAL_COUNT, FINE_AMOUNT, STUDENT_ID, BOOK_ID) " +
-                                 "VALUES ('" + sqlBorrowDate + "', '" + sqlDueDate + "', 'Borrowed', 0, 0.0, " + 
+            String insertQuery = "INSERT INTO BORROW (BORROW_DATE, DUE_DATE, RENEWAL_COUNT, FINE_AMOUNT, STUDENT_ID, BOOK_ID) " +
+                                 "VALUES ('" + sqlBorrowDate + "', '" + sqlDueDate + "', 0, 0.0, " + 
                                  student.getUserID() + ", " + isbn + ")";
             
             int result = DBManager.updateQuery(conn, insertQuery);

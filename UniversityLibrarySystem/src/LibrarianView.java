@@ -1,5 +1,7 @@
-
 import javax.swing.JFrame;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -21,14 +23,16 @@ public class LibrarianView extends javax.swing.JFrame {
     public LibrarianView() {
         initComponents();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        loadStatistics();
     }
 
     public LibrarianView(LibrarianController librarianC) {
         initComponents();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        this.librarianC = librarianC;
         this.librarian = librarianC.getLibrarian();
         updateLibrarianInfo();
-
+        loadStatistics();
     }
 
     private void updateLibrarianInfo() {
@@ -36,6 +40,104 @@ public class LibrarianView extends javax.swing.JFrame {
             libIdValue.setText(String.valueOf(librarian.getUserID()));
             libNameValue.setText(librarian.getName());
             libEmailValue.setText(librarian.getEmail());
+        }
+    }
+    
+    /**
+     * Loads all the statistics data from the database
+     */
+    private void loadStatistics() {
+        loadBorrowingsCount();
+        loadBooksCount();
+        loadAuthorsCount();
+        loadWarningsCount();
+    }
+    
+    /**
+     * Loads the total number of borrowings from the database
+     */
+    private void loadBorrowingsCount() {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String query = "SELECT COUNT(*) AS TOTAL FROM BORROW";
+                ResultSet rs = DBManager.query(conn, query);
+                if (rs != null && rs.next()) {
+                    totalBorrowings = rs.getInt("TOTAL");
+                    jLabel2.setText(String.valueOf(totalBorrowings));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading borrowings count: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Loads the total number of books from the database
+     */
+    private void loadBooksCount() {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String query = "SELECT COUNT(*) AS TOTAL FROM BOOK";
+                ResultSet rs = DBManager.query(conn, query);
+                if (rs != null && rs.next()) {
+                    int booksCount = rs.getInt("TOTAL");
+                    jLabel4.setText(String.valueOf(booksCount));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading books count: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Loads the total number of authors from the database
+     */
+    private void loadAuthorsCount() {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String query = "SELECT COUNT(*) AS TOTAL FROM AUTHOR";
+                ResultSet rs = DBManager.query(conn, query);
+                if (rs != null && rs.next()) {
+                    int authorsCount = rs.getInt("TOTAL");
+                    jLabel6.setText(String.valueOf(authorsCount));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading authors count: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Loads the number of overdue books (which represent warnings) from the database
+     */
+    private void loadWarningsCount() {
+        Connection conn = null;
+        try {
+            conn = DBManager.openCon();
+            if (conn != null) {
+                String query = "SELECT COUNT(*) AS TOTAL FROM BORROW WHERE BORROW_STATUS = 'Overdue'";
+                ResultSet rs = DBManager.query(conn, query);
+                if (rs != null && rs.next()) {
+                    int warningsCount = rs.getInt("TOTAL");
+                    jLabel8.setText(String.valueOf(warningsCount));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading warnings count: " + e.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
         }
     }
 
