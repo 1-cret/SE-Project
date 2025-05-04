@@ -108,7 +108,9 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
             tableModel.setRowCount(0);
             
             int rowCount = 0;
+
             while (rs != null && rs.next()) {
+                // Add test row
                 rowCount++;
                 int borrowId = rs.getInt("BORROW_ID");
                 String bookTitle = rs.getString("BOOK_TITLE");
