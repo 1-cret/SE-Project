@@ -82,7 +82,7 @@ public class BorrowMaterial extends javax.swing.JFrame {
             int rowCount = 0;
             while (rs != null && rs.next()) {
                 rowCount++;
-                int isbn = rs.getInt("ISBN");
+                String isbn = rs.getString("ISBN");
                 String title = rs.getString("TITLE");
                 
                 // Combine authors if there are multiple
