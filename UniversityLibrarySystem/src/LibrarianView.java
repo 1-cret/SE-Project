@@ -384,7 +384,7 @@ public class LibrarianView extends javax.swing.JFrame {
     }//GEN-LAST:event_borrowMatBtn1MouseClicked
 
     private void viewHistBtn1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewHistBtn1MouseClicked
-        BorrowingHistory borrowHist = new BorrowingHistory();
+        StudentBorrowingHistory borrowHist = new StudentBorrowingHistory();
         borrowHist.setLocationRelativeTo(this);
         borrowHist.setVisible(true);
     }//GEN-LAST:event_viewHistBtn1MouseClicked
