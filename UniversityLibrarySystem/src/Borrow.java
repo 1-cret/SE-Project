@@ -1,4 +1,7 @@
 import java.util.Date;
+import java.util.Calendar;
+import java.sql.Connection;
+import java.sql.ResultSet;
 
 public class Borrow {
     private int borrowID;
@@ -108,9 +111,64 @@ public class Borrow {
         return currentDate.after(dueDate);
     }
     
-//    public void confirmBorrowingProcess(){
-//        return;
-//    }
+    /**
+     * Creates a new borrowing record in the database
+     * 
+     * @param studentID The ID of the student borrowing the book
+     * @param bookISBN The ISBN of the book being borrowed
+     * @return true if the borrowing was successful, false otherwise
+     */
+    public static boolean borrowBook(int studentID, String bookISBN) {
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            return false;
+        }
+        
+        try {
+            // Get the last borrow ID and increment it
+            int nextBorrowId = 1; // Default starting ID if no records exist
+            String getLastIdQuery = "SELECT MAX(BORROW_ID) AS LAST_ID FROM BORROW";
+            ResultSet lastIdResult = DBManager.query(conn, getLastIdQuery);
+            if (lastIdResult != null && lastIdResult.next()) {
+                int lastId = lastIdResult.getInt("LAST_ID");
+                if (!lastIdResult.wasNull()) {
+                    nextBorrowId = lastId + 1;
+                }
+            }
+            
+            // Calculate dates
+            Date borrowDate = new Date(); // Current date
+            
+            // Set due date (14 days from today)
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(borrowDate);
+            calendar.add(Calendar.DAY_OF_MONTH, 14);
+            Date dueDate = calendar.getTime();
+            
+            // Insert borrow record with the new ID
+            java.sql.Date sqlBorrowDate = new java.sql.Date(borrowDate.getTime());
+            java.sql.Date sqlDueDate = new java.sql.Date(dueDate.getTime());
+            String insertQuery = "INSERT INTO BORROW (BORROW_ID, BORROW_DATE, DUE_DATE, RENEWAL_COUNT, FINE_AMOUNT, STUDENT_ID, BOOK_ID) " +
+                                 "VALUES (" + nextBorrowId + ", '" + sqlBorrowDate + "', '" + sqlDueDate + "', 0, 0.0, " + 
+                                 studentID + ", '" + bookISBN + "')";
+            
+            int result = DBManager.updateQuery(conn, insertQuery);
+            
+            if (result > 0) {
+                // Update book status to unavailable
+                String updateBookQuery = "UPDATE BOOK SET STATUS = 'DISABLED' WHERE ISBN = '" + bookISBN + "'";
+                DBManager.updateQuery(conn, updateBookQuery);
+                return true;
+            }
+            
+            return false;
+        } catch (Exception ex) {
+            System.out.println("Error borrowing book: " + ex.getMessage());
+            return false;
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
 
     enum BorrowStatus {
         ACTIVE,

@@ -293,56 +293,18 @@ public class BorrowMaterial extends javax.swing.JFrame {
         String isbn = tableModel.getValueAt(selectedRow, 0).toString();
         String bookTitle = tableModel.getValueAt(selectedRow, 1).toString();
         
-        // Create a new borrow record
-        Connection conn = DBManager.openCon();
-        if (conn == null) {
-            JOptionPane.showMessageDialog(this, "Failed to connect to database", 
-                                         "Database Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        // Use the Borrow class to create a new borrow record
+        boolean success = Borrow.borrowBook(student.getUserID(), isbn);
         
-        try {
-            // Calculate dates
-            Date borrowDate = new Date(); // Current date
-            
-            // Set due date (14 days from today)
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(borrowDate);
-            calendar.add(Calendar.DAY_OF_MONTH, 14);
-            Date dueDate = calendar.getTime();
-            
-            // Insert borrow record
-            java.sql.Date sqlBorrowDate = new java.sql.Date(borrowDate.getTime());
-            java.sql.Date sqlDueDate = new java.sql.Date(dueDate.getTime());
-            
-            String insertQuery = "INSERT INTO BORROW (BORROW_DATE, DUE_DATE, RENEWAL_COUNT, FINE_AMOUNT, STUDENT_ID, BOOK_ID) " +
-                                 "VALUES ('" + sqlBorrowDate + "', '" + sqlDueDate + "', 0, 0.0, " + 
-                                 student.getUserID() + ", '" + isbn + "')";
-            
-            int result = DBManager.updateQuery(conn, insertQuery);
-            
-            if (result > 0) {
-                // Update book status to unavailable
-                String updateBookQuery = "UPDATE BOOK SET STATUS = 'DISABLED' WHERE ISBN = '" + isbn+"'";
-                DBManager.updateQuery(conn, updateBookQuery);
-                
-                JOptionPane.showMessageDialog(this, 
-                    "Book '" + bookTitle + "' has been borrowed successfully.\n" +
-                    "Due date: " + sqlDueDate, 
-                    "Borrow Successful", JOptionPane.INFORMATION_MESSAGE);
-                
-                // Refresh the table to remove the borrowed book
-                loadAvailableBooks();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to borrow the book. Please try again.", 
-                                             "Borrow Failed", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error borrowing book: " + ex.getMessage(), 
-                                         "Database Error", JOptionPane.ERROR_MESSAGE);
-            System.out.println("Error borrowing book: " + ex.getMessage());
-        } finally {
-            DBManager.closeCon(conn);
+        if (success) {
+            JOptionPane.showMessageDialog(this, 
+                "Book '" + bookTitle + "' has been borrowed successfully.\n" +
+                "Due date: " + new java.sql.Date(new java.util.Date().getTime() + 14 * 24 * 60 * 60 * 1000), 
+                "Borrow Successful", JOptionPane.INFORMATION_MESSAGE);
+            loadAvailableBooks();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to borrow the book. Please try again.", 
+                                         "Borrow Failed", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_confirmBorrowActionPerformed
 
