@@ -69,56 +69,10 @@ public class StudentController{
      * @return Status enum indicating the result of the signup operation
      */
     public Status signUp(String name, String email, String password) {
-        // Check for empty fields
-        if (name == null || name.trim().isEmpty() ||
-            email == null || email.trim().isEmpty() ||
-            password == null || password.trim().isEmpty()) {
-            return Status.EMPTY_FIELDS;
-        }
-        
-        // Validate email format with regex
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        if (!pattern.matcher(email).matches()) {
-            return Status.INVALID_EMAIL;
-        }
-        
-        // Initialize student object
-        this.student = new Student(0); // Initialize with temporary ID
-        
-        // Attempt signup
-        boolean success = student.signUp(name, email, password);
-        
-        if (success) {
-            // Set the controller's properties
-            this.name = student.getName();
-            this.email = student.getEmail();
-            this.password = student.getPassword();
-            this.role = student.getRole();
-            this.status = student.getStatus();
-            this.userID = student.getUserID();
-            
+       boolean s = student.signUp(name, email, password);
+        if (s) {
             return Status.SUCCESS;
         } else {
-            // Check if email exists query could be executed in the Student class
-            // but this is a simpler approach without modifying Student class
-            Connection conn = DBManager.openCon();
-            if (conn == null) {
-                return Status.DATABASE_ERROR;
-            }
-            
-            try {
-                String checkQuery = "SELECT * FROM STUDENT WHERE EMAIL = '" + email + "'";
-                ResultSet checkResult = DBManager.query(conn, checkQuery);
-                if (checkResult != null && checkResult.next()) {
-                    return Status.EMAIL_EXISTS;
-                }
-            } catch (SQLException ex) {
-                System.out.println("Email Check Error: " + ex.getMessage());
-            } finally {
-                DBManager.closeCon(conn);
-            }
-            
             return Status.DATABASE_ERROR;
         }
     }
