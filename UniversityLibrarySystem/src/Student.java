@@ -92,13 +92,15 @@ public class Student extends User {
             }
             
             // Insert new student
-            String insertQuery = "INSERT INTO STUDENT (ID, NAME, EMAIL, PASSWORD, ROLE, STATUS) VALUES (" + (lastId + 1) + ", '" + name + "', '" + email + "', '" + password + "', 'Student', TRUE)";
-            ResultSet res = DBManager.query(conn, insertQuery);
+            String insertQuery = "INSERT INTO STUDENT (ID, NAME, EMAIL, PASSWORD, STATUS) VALUES (" + (lastId + 1) + ", '" + name + "', '" + email + "', '" + password + "', TRUE)";
+            int stat = DBManager.updateQuery(conn, insertQuery);
             // Set the user ID
             this.setUserID(lastId + 1);
-            if (res != null) {
+            if (stat == 1) {
+                System.out.println("Signed up.");
                 return true;
             }
+            
         } catch (SQLException ex) {
             System.out.println("Sign Up Error: " + ex.getMessage());
         } finally {

@@ -41,4 +41,8 @@ public class StudentController{
     public boolean login() {
         return student.login();
     }
+    
+//    public boolean signup(){
+//        return student.signUp();
+//    }
 }

@@ -40,14 +40,13 @@ public class DBManager {
         }
     }
 
-    public static ResultSet updateQuery(Connection conn, String query) {
+    public static int updateQuery(Connection conn, String query) {
         try {
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate(query);
-            return stmt.getResultSet();
+            return stmt.executeUpdate(query);
         } catch (SQLException e) {
             System.out.println("Query Error: " + e.getMessage());
-            return null;
+            return 0;
         }
     }
 }
