@@ -465,20 +465,13 @@ public class StudentView extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void borrowMatBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrowMatBtnMouseClicked
-        // Create a BorrowMaterial instance without student parameter since it's not implemented yet
         BorrowMaterial borrow = new BorrowMaterial();
         borrow.setLocationRelativeTo(this);
         borrow.setVisible(true);
     }//GEN-LAST:event_borrowMatBtnMouseClicked
 
     private void viewHistBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewHistBtnMouseClicked
-        // Create a StudentBorrowingHistory instance without student parameter since it's not implemented yet
-        StudentBorrowingHistory borrHist = new StudentBorrowingHistory();
-        // Pass the student ID to load their specific history
-        if (student != null) {
-            // The implementation will need to be updated to handle student data
-            borrHist.setTitle("Borrowing History - " + student.getName());
-        }
+        StudentBorrowingHistory borrHist = new StudentBorrowingHistory(student.getUserID());
         borrHist.setLocationRelativeTo(this);
         borrHist.setVisible(true);
     }//GEN-LAST:event_viewHistBtnMouseClicked

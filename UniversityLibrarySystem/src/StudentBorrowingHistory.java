@@ -1,5 +1,10 @@
-
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JFrame;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -12,12 +17,139 @@ import javax.swing.JFrame;
  */
 public class StudentBorrowingHistory extends javax.swing.JFrame {
 
+    private int studentID;
+    private DefaultTableModel tableModel;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     /**
      * Creates new form BorrowingHistory
      */
     public StudentBorrowingHistory() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setupTable();
+    }
+    
+    /**
+     * Creates new form BorrowingHistory for a specific student
+     * @param studentID the ID of the student to show borrowing history for
+     */
+    public StudentBorrowingHistory(int studentID) {
+        initComponents();
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.studentID = studentID;
+        setupTable();
+        loadBorrowingHistory();
+    }
+
+    /**
+     * Creates new form BorrowingHistory for a specific student
+     * @param student the Student object to show borrowing history for
+     */
+    public StudentBorrowingHistory(Student student) {
+        initComponents();
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.studentID = student.getUserID();
+        setupTable();
+        loadBorrowingHistory();
+    }
+    
+    /**
+     * Setup table columns and formatting
+     */
+    private void setupTable() {
+        tableModel = (DefaultTableModel) jTable1.getModel();
+        // Clear existing data
+        tableModel.setRowCount(0);
+        
+        // Set column headers
+        String[] columnNames = {"Borrow ID", "Book Title", "Borrow Date", "Due Date", "Return Date", "Status", "Fine Amount"};
+        tableModel.setColumnIdentifiers(columnNames);
+        
+        // Configure table appearance
+        jTable1.getColumnModel().getColumn(0).setPreferredWidth(70);  // Borrow ID
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(200); // Book Title
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(100); // Borrow Date
+        jTable1.getColumnModel().getColumn(3).setPreferredWidth(100); // Due Date
+        jTable1.getColumnModel().getColumn(4).setPreferredWidth(100); // Return Date
+        jTable1.getColumnModel().getColumn(5).setPreferredWidth(80);  // Status
+        jTable1.getColumnModel().getColumn(6).setPreferredWidth(80);  // Fine Amount
+    }
+    
+    /**
+     * Load borrowing history for the current student from the database
+     */
+    private void loadBorrowingHistory() {
+        Connection conn = DBManager.openCon();
+        if (conn == null) {
+            return;
+        }
+        
+        try {
+            String query = "SELECT b.BORROW_ID, bk.BOOK_TITLE, b.BORROW_DATE, b.DUE_DATE, " +
+                           "b.RETURN_DATE, b.RENEWAL_COUNT, b.FINE_AMOUNT " +
+                           "FROM BORROW b JOIN BOOK bk ON b.BOOK_ID = bk.ISBN " +
+                           "WHERE b.STUDENT_ID = " + studentID + " " +
+                           "ORDER BY b.BORROW_DATE DESC";
+            
+            ResultSet rs = DBManager.query(conn, query);
+            tableModel.setRowCount(0);
+            
+            while (rs != null && rs.next()) {
+                int borrowId = rs.getInt("BORROW_ID");
+                String bookTitle = rs.getString("BOOK_TITLE");
+                
+                // Format dates for display
+                String borrowDate = formatDate(rs.getDate("BORROW_DATE"));
+                String dueDate = formatDate(rs.getDate("DUE_DATE"));
+                String returnDate = formatDate(rs.getDate("RETURN_DATE"));
+                
+                // Determine status based on return date and due date
+                String status = determineStatus(rs.getDate("RETURN_DATE"), rs.getDate("DUE_DATE"));
+                
+                double fineAmount = rs.getDouble("FINE_AMOUNT");
+                
+                // Add row to table
+                tableModel.addRow(new Object[]{
+                    borrowId, bookTitle, borrowDate, dueDate, returnDate, status, fineAmount
+                });
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error loading borrowing history: " + ex.getMessage());
+        } finally {
+            DBManager.closeCon(conn);
+        }
+    }
+    
+    /**
+     * Format a date for display, handling null dates
+     * @param date the date to format
+     * @return formatted date string or empty string if date is null
+     */
+    private String formatDate(Date date) {
+        if (date == null) {
+            return "";
+        }
+        return dateFormat.format(date);
+    }
+    
+    /**
+     * Determine the status of a borrowed book
+     * @param returnDate the date the book was returned
+     * @param dueDate the date the book was due
+     * @return status string (Returned, Overdue, Active)
+     */
+    private String determineStatus(Date returnDate, Date dueDate) {
+        if (returnDate != null) {
+            return "Returned";
+        }
+        
+        Date currentDate = new Date();
+        if (currentDate.after(dueDate)) {
+            return "Overdue";
+        }
+        
+        return "Active";
     }
 
     /**
