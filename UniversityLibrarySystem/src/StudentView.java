@@ -21,38 +21,26 @@ public class StudentView extends javax.swing.JFrame {
     private int borrowedCount = 0;
     private int overdueCount = 0;
 
-    /**
-     * Creates new form StudentView with default settings
-     */
     public StudentView() {
         initComponents();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
     
-    /**
-     * Creates new form StudentView with student data
-     * @param student The student object containing user data
-     */
     public StudentView(StudentController studentC) {
         initComponents();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.student = studentC.getStudent();
         
-        // Display student information
         updateStudentInfo();
         
-        // Load borrowing statistics
         loadBorrowingStatistics();
     }
     
-    /**
-     * Updates the student information panel with data from the student object
-     */
     private void updateStudentInfo() {
         if (student != null) {
-            jLabel13.setText(String.valueOf(student.getUserID()));
-            jLabel14.setText(student.getName());
-            jLabel15.setText(student.getEmail());
+            studentIdValue.setText(String.valueOf(student.getUserID()));
+            studentNameValue.setText(student.getName());
+            studentEmailValue.setText(student.getEmail());
         }
     }
     
@@ -138,9 +126,9 @@ public class StudentView extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
+        studentIdValue = new javax.swing.JLabel();
+        studentNameValue = new javax.swing.JLabel();
+        studentEmailValue = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -379,14 +367,14 @@ public class StudentView extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel12.setText("Email:");
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel13.setText("0");
+        studentIdValue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        studentIdValue.setText("0");
 
-        jLabel14.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel14.setText("Student Name");
+        studentNameValue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        studentNameValue.setText("Student Name");
 
-        jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel15.setText("student@example.com");
+        studentEmailValue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        studentEmailValue.setText("student@example.com");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -398,15 +386,15 @@ public class StudentView extends javax.swing.JFrame {
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel10)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(studentIdValue, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel14))
+                        .addComponent(studentNameValue))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel12)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel15)))
+                        .addComponent(studentEmailValue)))
                 .addGap(14, 14, 14))
         );
         jPanel8Layout.setVerticalGroup(
@@ -415,15 +403,15 @@ public class StudentView extends javax.swing.JFrame {
                 .addGap(15, 15, 15)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(jLabel13))
+                    .addComponent(studentIdValue))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(jLabel14))
+                    .addComponent(studentNameValue))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
-                    .addComponent(jLabel15))
+                    .addComponent(studentEmailValue))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -518,9 +506,6 @@ public class StudentView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -537,6 +522,9 @@ public class StudentView extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JLabel studentEmailValue;
+    private javax.swing.JLabel studentIdValue;
+    private javax.swing.JLabel studentNameValue;
     private javax.swing.JLabel viewHistBtn;
     // End of variables declaration//GEN-END:variables
 }

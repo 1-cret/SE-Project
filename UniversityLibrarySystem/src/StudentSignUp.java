@@ -39,8 +39,8 @@ public class StudentSignUp extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         SignUpPasswordField = new javax.swing.JPasswordField();
         Studentloginbtn = new javax.swing.JButton();
-        LoginLabel = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        SignUpLink = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -116,17 +116,17 @@ public class StudentSignUp extends javax.swing.JFrame {
             }
         });
 
-        LoginLabel.setBackground(new java.awt.Color(204, 255, 255));
-        LoginLabel.setForeground(new java.awt.Color(51, 153, 255));
-        LoginLabel.setText("Login");
-        LoginLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        LoginLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel6.setText("Already a user?");
+
+        SignUpLink.setBackground(new java.awt.Color(204, 255, 255));
+        SignUpLink.setForeground(new java.awt.Color(51, 153, 255));
+        SignUpLink.setText("Login ");
+        SignUpLink.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        SignUpLink.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                LoginLabelMouseClicked(evt);
+                SignUpLinkMouseClicked(evt);
             }
         });
-
-        jLabel6.setText("Already a User?");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -158,10 +158,10 @@ public class StudentSignUp extends javax.swing.JFrame {
                         .addComponent(Studentloginbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(84, 84, 84))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(LoginLabel)
-                        .addGap(147, 147, 147))))
+                        .addComponent(SignUpLink)
+                        .addGap(140, 140, 140))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -182,11 +182,11 @@ public class StudentSignUp extends javax.swing.JFrame {
                 .addComponent(SignUpPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30)
                 .addComponent(Studentloginbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(36, 36, 36)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LoginLabel)
+                    .addComponent(SignUpLink)
                     .addComponent(jLabel6))
-                .addGap(0, 156, Short.MAX_VALUE))
+                .addGap(0, 132, Short.MAX_VALUE))
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -259,15 +259,15 @@ public class StudentSignUp extends javax.swing.JFrame {
                 
                 // Redirect to StudentView on success (instead of login screen)
                 this.dispose();
-                new StudentView().setVisible(true);
+                new StudentView(controller).setVisible(true);
                 break;
         }
     }//GEN-LAST:event_StudentloginbtnActionPerformed
 
-    private void LoginLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LoginLabelMouseClicked
+    private void SignUpLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SignUpLinkMouseClicked
         this.dispose(); // Close the current login form
-        new Login().setVisible(true); // Open the sign-up form
-    }//GEN-LAST:event_LoginLabelMouseClicked
+        new StudentSignUp().setVisible(true); // Open the sign-up form
+    }//GEN-LAST:event_SignUpLinkMouseClicked
 
     /**
      * @param args the command line arguments
@@ -305,8 +305,8 @@ public class StudentSignUp extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel LoginLabel;
     private javax.swing.JTextField SignUpEmailField;
+    private javax.swing.JLabel SignUpLink;
     private javax.swing.JTextField SignUpNameField;
     private javax.swing.JPasswordField SignUpPasswordField;
     private javax.swing.JButton Studentloginbtn;

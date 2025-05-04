@@ -27,10 +27,10 @@ public class Student extends User {
         return borrowList;
     }
 
-    public boolean login() {
+    public Student login() {
         Connection conn = DBManager.openCon();
         if (conn == null) {
-            return false;
+            return null;
         }
 
         String query = "SELECT * FROM STUDENT WHERE EMAIL = '" + this.getEmail() + "' AND PASSWORD = '" + this.getPassword() + "'";
@@ -44,7 +44,7 @@ public class Student extends User {
                 this.setPassword(res.getString("PASSWORD"));
                 Boolean f = res.getBoolean("STATUS");
                 this.setStatus(f == true ? UserStatus.Status.ACTIVE : UserStatus.Status.DISABLED);
-                return true;
+                return this;
             }
         } catch (SQLException ex) {
             System.out.println("Login Error: " + ex.getMessage());
@@ -52,7 +52,7 @@ public class Student extends User {
             DBManager.closeCon(conn);
         }
 
-        return false;
+        return null;
     }
 
     public boolean signUp(String name, String email, String password) {

@@ -55,5 +55,6 @@ public class AdminController {
     
     public boolean login() {
         return admin.login();
-    }
+    }   
+    
 }

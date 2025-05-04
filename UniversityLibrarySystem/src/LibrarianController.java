@@ -50,7 +50,15 @@ public class LibrarianController {
         this.librarian = new Librarian(this.userID, this.name, this.email, this.password, this.role, this.status);
     }
     
-    public boolean login() {
-        return librarian.login();
+    public LibrarianController login() {
+        this.librarian = librarian.login();
+        return this;
+    }
+    
+    public Librarian getLibrarian() {
+        return librarian;
+    }
+    public void setLibrarian(Librarian librarian) {
+        this.librarian = librarian;
     }
 }

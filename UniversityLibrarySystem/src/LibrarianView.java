@@ -5,19 +5,39 @@ import javax.swing.JFrame;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-
 /**
  *
  * @author Omayr
  */
 public class LibrarianView extends javax.swing.JFrame {
 
-    /**
-     * Creates new form LibrarianView
-     */
+    private LibrarianController librarianC;
+    private Librarian librarian;
+    private int totalBorrowings = 0;
+    private int returnedCount = 0;
+    private int borrowedCount = 0;
+    private int overdueCount = 0;
+
     public LibrarianView() {
         initComponents();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+
+    public LibrarianView(LibrarianController librarianC) {
+        initComponents();
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        this.librarian = librarianC.getLibrarian();
+
+        updateLibrarianInfo();
+
+    }
+
+    private void updateLibrarianInfo() {
+        if (librarian != null) {
+            libIdValue.setText(String.valueOf(librarian.getUserID()));
+            libNameValue.setText(librarian.getName());
+            libEmailValue.setText(librarian.getEmail());
+        }
     }
 
     /**
@@ -52,9 +72,9 @@ public class LibrarianView extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
+        libIdValue = new javax.swing.JLabel();
+        libNameValue = new javax.swing.JLabel();
+        libEmailValue = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -294,14 +314,14 @@ public class LibrarianView extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel12.setText("Email:");
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel13.setText("0");
+        libIdValue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        libIdValue.setText("0");
 
-        jLabel14.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel14.setText("Librarian Name");
+        libNameValue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        libNameValue.setText("Librarian Name");
 
-        jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel15.setText("librarian@example.com");
+        libEmailValue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        libEmailValue.setText("librarian@example.com");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -313,15 +333,15 @@ public class LibrarianView extends javax.swing.JFrame {
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel10)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(libIdValue, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel14))
+                        .addComponent(libNameValue))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel12)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel15)))
+                        .addComponent(libEmailValue)))
                 .addContainerGap(47, Short.MAX_VALUE))
         );
         jPanel8Layout.setVerticalGroup(
@@ -330,15 +350,15 @@ public class LibrarianView extends javax.swing.JFrame {
                 .addGap(15, 15, 15)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(jLabel13))
+                    .addComponent(libIdValue))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(jLabel14))
+                    .addComponent(libNameValue))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
-                    .addComponent(jLabel15))
+                    .addComponent(libEmailValue))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -431,9 +451,6 @@ public class LibrarianView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -450,6 +467,9 @@ public class LibrarianView extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JLabel libEmailValue;
+    private javax.swing.JLabel libIdValue;
+    private javax.swing.JLabel libNameValue;
     private javax.swing.JLabel viewHistBtn1;
     // End of variables declaration//GEN-END:variables
 }

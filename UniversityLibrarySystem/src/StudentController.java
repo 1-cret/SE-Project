@@ -51,8 +51,9 @@ public class StudentController{
         this.student = new Student(null, email, password, null, null, null);
     }
     
-    public boolean login() {
-        return student.login();
+    public StudentController login() {
+        this.student = student.login();
+        return this;
     }
     public Student getStudent() {
         return student;
@@ -61,13 +62,6 @@ public class StudentController{
         this.student = student;
     }
     
-    /**
-     * Validates and processes student signup
-     * @param name Student's name
-     * @param email Student's email address
-     * @param password Student's password
-     * @return Status enum indicating the result of the signup operation
-     */
     public Status signUp(String name, String email, String password) {
        boolean s = student.signUp(name, email, password);
         if (s) {

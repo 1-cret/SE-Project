@@ -295,7 +295,7 @@ public class Login extends javax.swing.JFrame {
         switch (selectedRole) {
             case "Student":
                 StudentController student = new StudentController(email, password);
-                if (student.login()) {
+                if (student.login() != null) {
                     this.dispose();
                     new StudentView(student).setVisible(true);
                 } else {
@@ -315,9 +315,9 @@ public class Login extends javax.swing.JFrame {
 
             case "Librarian":
                 LibrarianController librarian = new LibrarianController(email, password);
-                if (librarian.login()) {
+                if (librarian.login() != null) {
                     this.dispose();
-                    new LibrarianView().setVisible(true);
+                    new LibrarianView(librarian).setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid librarian credentials", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 }
