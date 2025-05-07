@@ -1,4 +1,7 @@
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -61,7 +64,7 @@ public class LibrarianManagement extends javax.swing.JFrame {
     /**
      * Display an add librarian dialog
      */
-    private void showAddLibrarianDialog() {
+    private void showAddLibrarianDialog() throws SQLException {
         // Create input dialog for the new librarian
         String name = JOptionPane.showInputDialog(this, "Enter librarian name:");
         if (name == null || name.trim().isEmpty()) {
@@ -325,7 +328,11 @@ public class LibrarianManagement extends javax.swing.JFrame {
     }//GEN-LAST:event_deleteLibrarianBtnActionPerformed
     
     private void addLibrariantnActionPerformed(java.awt.event.ActionEvent evt) {
-        showAddLibrarianDialog();
+        try {
+            showAddLibrarianDialog();
+        } catch (SQLException ex) {
+            Logger.getLogger(LibrarianManagement.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

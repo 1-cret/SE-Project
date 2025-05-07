@@ -66,7 +66,7 @@ public class LibrarianController {
     }
     
     
-    public boolean addLibrarian(String name, String email, String password, Status status) {
+    public boolean addLibrarian(String name, String email, String password, Status status) throws SQLException {
         this.name = name;
         this.email = email;
         this.password = password;

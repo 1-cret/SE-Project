@@ -1,4 +1,7 @@
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -200,7 +203,12 @@ public class AdminManagement extends javax.swing.JFrame {
         }
         
       
-        boolean success = adminController.addAdmin(name, email, password, AdminController.Status.ACTIVE);
+        boolean success = false;
+        try {
+            success = adminController.addAdmin(name, email, password, AdminController.Status.ACTIVE);
+        } catch (SQLException ex) {
+            Logger.getLogger(AdminManagement.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Admin added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
