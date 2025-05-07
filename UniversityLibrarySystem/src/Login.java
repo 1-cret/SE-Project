@@ -305,7 +305,7 @@ public class Login extends javax.swing.JFrame {
 
             case "Admin":
                 AdminController admin = new AdminController(email, password);
-                if (admin.login()) {
+                if (admin.login()!=null) {
                     this.dispose();
                     new AdminView().setVisible(true);
                 } else {

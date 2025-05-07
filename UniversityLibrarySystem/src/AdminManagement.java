@@ -24,12 +24,10 @@ public class AdminManagement extends javax.swing.JFrame {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
-        // Initialize controller and setup table
         adminController = new AdminController();
         setupTable();
         loadAdmins();
         
-        // Add action listener for the Add Admin button
         addAdminBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addAdminBtnActionPerformed(evt);
@@ -161,32 +159,22 @@ public class AdminManagement extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * Setup table model with proper columns
-     */
+    
     private void setupTable() {
-        // Set up table model
         tableModel = (DefaultTableModel) jTable1.getModel();
         
-        // Ensure column headers are properly set
         String[] columnNames = {"ID", "Name", "Email", "Status"};
         tableModel.setColumnIdentifiers(columnNames);
         
-        // Clear any existing rows
         tableModel.setRowCount(0);
     }
     
-    /**
-     * Load all admins from database and display in table
-     */
+    
     private void loadAdmins() {
-        // Clear existing rows
         tableModel.setRowCount(0);
         
-        // Get all admins from database
         adminList = adminController.getAllAdmins();
         
-        // Populate table with admin data
         for (Admin admin : adminList) {
             String status = admin.getStatus() == AdminController.Status.ACTIVE ? "Active" : "Disabled";
             Object[] rowData = {admin.getUserID(), admin.getName(), admin.getEmail(), status};
@@ -194,48 +182,42 @@ public class AdminManagement extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Show dialog to add a new admin
-     */
+
     private void addAdminBtnActionPerformed(java.awt.event.ActionEvent evt) {
-        // Create input fields
         String name = JOptionPane.showInputDialog(this, "Enter admin name:", "Add Admin", JOptionPane.PLAIN_MESSAGE);
         if (name == null || name.trim().isEmpty()) {
-            return; // User cancelled
+            return; 
         }
         
         String email = JOptionPane.showInputDialog(this, "Enter admin email:", "Add Admin", JOptionPane.PLAIN_MESSAGE);
         if (email == null || email.trim().isEmpty()) {
-            return; // User cancelled
+            return;
         }
         
         String password = JOptionPane.showInputDialog(this, "Enter admin password:", "Add Admin", JOptionPane.PLAIN_MESSAGE);
         if (password == null || password.trim().isEmpty()) {
-            return; // User cancelled
+            return; 
         }
         
-        // Add admin to database
+      
         boolean success = adminController.addAdmin(name, email, password, AdminController.Status.ACTIVE);
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Admin added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadAdmins(); // Refresh the table
+            loadAdmins();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to add admin.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
-    /**
-     * Update selected admin information
-     */
+  
     private void updateAdminBtnActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select an admin to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        // Get the selected admin
+      
         int adminId = (int) jTable1.getValueAt(selectedRow, 0);
         Admin selectedAdmin = null;
         
@@ -251,28 +233,26 @@ public class AdminManagement extends javax.swing.JFrame {
             return;
         }
         
-        // Get updated information
         String name = JOptionPane.showInputDialog(this, "Enter new name:", selectedAdmin.getName());
         if (name == null) {
-            return; // User cancelled
+            return; 
         }
         
         String email = JOptionPane.showInputDialog(this, "Enter new email:", selectedAdmin.getEmail());
         if (email == null) {
-            return; // User cancelled
+            return; 
         }
         
         String password = JOptionPane.showInputDialog(this, "Enter new password (leave empty to keep current):", "");
         if (password == null) {
-            return; // User cancelled
+            return; 
         }
         
-        // If password is empty, keep the current one
+        
         if (password.trim().isEmpty()) {
             password = selectedAdmin.getPassword();
         }
         
-        // Get current status and allow user to change it
         String[] statusOptions = {"Active", "Disabled"};
         int currentStatusIndex = (selectedAdmin.getStatus() == AdminController.Status.ACTIVE) ? 0 : 1;
         int statusChoice = JOptionPane.showOptionDialog(this, "Select status:",
@@ -280,12 +260,12 @@ public class AdminManagement extends javax.swing.JFrame {
                 null, statusOptions, statusOptions[currentStatusIndex]);
         
         if (statusChoice == -1) {
-            return; // User cancelled
+            return; 
         }
         
         AdminController.Status newStatus = (statusChoice == 0) ? AdminController.Status.ACTIVE : AdminController.Status.DISABLED;
         
-        // Update admin in database
+       
         boolean success = adminController.updateAdmin(adminId, name, email, password, newStatus);
         
         if (success) {

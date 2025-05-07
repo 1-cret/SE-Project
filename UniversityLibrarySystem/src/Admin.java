@@ -25,7 +25,6 @@ public class Admin {
         this.status = status;
     }
     
-    // Getters and setters
     public int getUserID() {
         return userID;
     }

@@ -33,7 +33,7 @@ public class StudentView extends javax.swing.JFrame {
         
         updateStudentInfo();
         
-        loadBorrowingStatistics();
+       // loadBorrowingStatistics();
     }
     
     private void updateStudentInfo() {
