@@ -113,7 +113,8 @@ public class Student {
     }
 
     public boolean signUp(String name, String email, String password) {
-        // Check if all required fields are provided
+        // Check if all required fields are providedsword) {
+        // Check if all required 
         if (name == null || name.trim().isEmpty() ||
             email == null || email.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {

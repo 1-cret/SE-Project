@@ -140,14 +140,20 @@ public class Librarian {
     }
     
     // Add new librarian to database
-    public boolean addLibrarian() {
+    public boolean addLibrarian() throws SQLException {
         Connection conn = DBManager.openCon();
         if (conn == null) {
             return false;
         }
-        
-        String query = "INSERT INTO LIBRARIAN (NAME, EMAIL, PASSWORD, STATUS) VALUES ('" 
-                + this.name + "', '" 
+        String lastIdQuery = "SELECT MAX(ID) AS LAST_ID FROM ADMIN";
+        ResultSet lastIdResult = DBManager.query(conn, lastIdQuery);
+        int lastId = 0;
+        if (lastIdResult != null && lastIdResult.next()) {
+            lastId = lastIdResult.getInt("LAST_ID");
+        }
+        int nextID=lastId+1;
+        String query = "INSERT INTO LIBRARIAN (ID,NAME, EMAIL, PASSWORD, STATUS) VALUES (" 
+                +nextID+", '" + this.name + "', '" 
                 + this.email + "', '" 
                 + this.password + "', " 
                 + (this.status == LibrarianController.Status.ACTIVE ? "TRUE" : "FALSE") + ")";
