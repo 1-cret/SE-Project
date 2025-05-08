@@ -163,18 +163,26 @@ public class AdminController {
 
         try {
 
-            String returnsQuery = "SELECT COUNT(*) AS count FROM BORROW WHERE STATUS = 'RETURNED'";
+            String returnsQuery = "SELECT COUNT(*) AS count FROM BORROW WHERE RETURN_DATE IS NOT NULL";
             ResultSet returnsRs = DBManager.query(conn, returnsQuery);
             if (returnsRs != null && returnsRs.next()) {
                 stats[0] = returnsRs.getInt("count");
             }
 
-            String usersQuery = "SELECT (SELECT COUNT(*) FROM STUDENT) + "
-                    + "(SELECT COUNT(*) FROM LIBRARIAN) + "
-                    + "(SELECT COUNT(*) FROM ADMIN) AS total_users FROM DUAL";
-            ResultSet usersRs = DBManager.query(conn, usersQuery);
-            if (usersRs != null && usersRs.next()) {
-                stats[1] = usersRs.getInt("total_users");
+            String studentsQuery = "SELECT COUNT(*) AS total_students FROM STUDENT";
+            String librariansQuery = "SELECT COUNT(*) AS total_librarians FROM LIBRARIAN";
+            String adminsQuery = "SELECT COUNT(*) AS total_admins FROM ADMIN";
+            ResultSet studentsRs = DBManager.query(conn, studentsQuery);
+            ResultSet librariansRs = DBManager.query(conn, librariansQuery);
+            ResultSet adminsRs = DBManager.query(conn, adminsQuery);
+            if (studentsRs != null && studentsRs.next()) {
+                stats[1] = studentsRs.getInt("total_students");
+            }
+            if (librariansRs != null && librariansRs.next()) {
+                stats[1] += librariansRs.getInt("total_librarians");
+            }
+            if (adminsRs != null && adminsRs.next()) {
+                stats[1] += adminsRs.getInt("total_admins");
             }
 
             String booksQuery = "SELECT COUNT(*) AS count FROM BOOK";

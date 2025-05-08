@@ -22,9 +22,6 @@ public class AdminView extends javax.swing.JFrame {
         updateDashboardStats();
     }
     
-    /**
-     * Updates the dashboard statistics with real data from the database
-     */
     private void updateDashboardStats() {
         int[] stats = adminController.getSystemStats();
         
