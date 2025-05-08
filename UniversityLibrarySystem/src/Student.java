@@ -113,15 +113,12 @@ public class Student {
     }
 
     public boolean signUp(String name, String email, String password) {
-        // Check if all required fields are providedsword) {
-        // Check if all required 
         if (name == null || name.trim().isEmpty() ||
             email == null || email.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
             return false;
         }
         
-        // Set the user properties
         this.setName(name);
         this.setEmail(email);
         this.setPassword(password);
@@ -134,14 +131,11 @@ public class Student {
         }
         
         try {
-            // Check if email already exists
             String checkQuery = "SELECT * FROM STUDENT WHERE EMAIL = '" + email + "'";
             ResultSet checkResult = DBManager.query(conn, checkQuery);
             if (checkResult != null && checkResult.next()) {
-                // Email already exists
                 return false;
             }
-            // Get last user ID
             String lastIdQuery = "SELECT MAX(ID) AS LAST_ID FROM STUDENT";
             ResultSet lastIdResult = DBManager.query(conn, lastIdQuery);
             int lastId = 0;
@@ -149,10 +143,8 @@ public class Student {
                 lastId = lastIdResult.getInt("LAST_ID");
             }
             
-            // Insert new student
             String insertQuery = "INSERT INTO STUDENT (ID, NAME, EMAIL, PASSWORD, STATUS) VALUES (" + (lastId + 1) + ", '" + name + "', '" + email + "', '" + password + "', TRUE)";
             int stat = DBManager.updateQuery(conn, insertQuery);
-            // Set the user ID
             this.setUserID(lastId + 1);
             if (stat == 1) {
                 System.out.println("Signed up.");

@@ -28,10 +28,10 @@ public class AdminView extends javax.swing.JFrame {
     private void updateDashboardStats() {
         int[] stats = adminController.getSystemStats();
         
-        // Update the labels with actual statistics
-        jLabel6.setText(String.valueOf(stats[0])); // Returns
-        jLabel8.setText(String.valueOf(stats[1])); // Users
-        jLabel10.setText(String.valueOf(stats[2])); // Books
+        
+        jLabel6.setText(String.valueOf(stats[0])); 
+        jLabel8.setText(String.valueOf(stats[1])); 
+        jLabel10.setText(String.valueOf(stats[2])); 
     }
 
     /**

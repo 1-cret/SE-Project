@@ -19,9 +19,6 @@ public class LibrarianManagement extends javax.swing.JFrame {
     private LibrarianController librarianController;
     private DefaultTableModel tableModel;
     
-    /**
-     * Creates new form LibrarianManagement
-     */
     public LibrarianManagement() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -30,26 +27,20 @@ public class LibrarianManagement extends javax.swing.JFrame {
         loadLibrarians();
     }
     
-    /**
-     * Setup the table model with the appropriate columns
-     */
     private void setupTable() {
         tableModel = (DefaultTableModel) jTable1.getModel();
-        // Clear existing data
+        
         tableModel.setRowCount(0);
     }
     
-    /**
-     * Load all librarians from the database
-     */
     private void loadLibrarians() {
-        // Clear existing data
+        
         tableModel.setRowCount(0);
         
-        // Fetch all librarians
+        
         List<Librarian> librarians = librarianController.getAllLibrarians();
         
-        // Add rows to the table
+        
         for (Librarian lib : librarians) {
             String status = lib.getStatus() == LibrarianController.Status.ACTIVE ? "Active" : "Disabled";
             tableModel.addRow(new Object[]{
@@ -61,11 +52,8 @@ public class LibrarianManagement extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Display an add librarian dialog
-     */
     private void showAddLibrarianDialog() throws SQLException {
-        // Create input dialog for the new librarian
+        
         String name = JOptionPane.showInputDialog(this, "Enter librarian name:");
         if (name == null || name.trim().isEmpty()) {
             return;
@@ -89,20 +77,17 @@ public class LibrarianManagement extends javax.swing.JFrame {
                 LibrarianController.Status.ACTIVE : 
                 LibrarianController.Status.DISABLED;
         
-        // Add the librarian to the database
+        
         boolean success = librarianController.addLibrarian(name, email, password, status);
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Librarian added successfully!");
-            loadLibrarians(); // Refresh the table
+            loadLibrarians(); 
         } else {
             JOptionPane.showMessageDialog(this, "Failed to add librarian.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
-    /**
-     * Display an update librarian dialog
-     */
     private void showUpdateLibrarianDialog() {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow < 0) {
@@ -110,17 +95,17 @@ public class LibrarianManagement extends javax.swing.JFrame {
             return;
         }
         
-        // Get the selected librarian ID
+        
         int librarianId = (int) jTable1.getValueAt(selectedRow, 0);
         
-        // Fetch the librarian from the database
+        
         Librarian selectedLibrarian = librarianController.getLibrarianById(librarianId);
         if (selectedLibrarian == null) {
             JOptionPane.showMessageDialog(this, "Could not find the selected librarian.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Get new values for the librarian
+        
         String name = JOptionPane.showInputDialog(this, "Enter new name:", selectedLibrarian.getName());
         if (name == null) {
             return;
@@ -135,7 +120,7 @@ public class LibrarianManagement extends javax.swing.JFrame {
         if (password == null) {
             return;
         }
-        // If password is empty, keep the old one
+        
         if (password.trim().isEmpty()) {
             password = selectedLibrarian.getPassword();
         }
@@ -148,20 +133,17 @@ public class LibrarianManagement extends javax.swing.JFrame {
                 LibrarianController.Status.ACTIVE : 
                 LibrarianController.Status.DISABLED;
         
-        // Update the librarian in the database
+        
         boolean success = librarianController.updateLibrarian(librarianId, name, email, password, status);
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Librarian updated successfully!");
-            loadLibrarians(); // Refresh the table
+            loadLibrarians(); 
         } else {
             JOptionPane.showMessageDialog(this, "Failed to update librarian.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
-    /**
-     * Delete the selected librarian
-     */
     private void deleteSelectedLibrarian() {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow < 0) {
@@ -169,10 +151,10 @@ public class LibrarianManagement extends javax.swing.JFrame {
             return;
         }
         
-        // Get the selected librarian ID
+        
         int librarianId = (int) jTable1.getValueAt(selectedRow, 0);
         
-        // Confirm deletion
+        
         int confirm = JOptionPane.showConfirmDialog(this, 
                 "Are you sure you want to delete this librarian?", 
                 "Confirm Deletion", 
@@ -183,7 +165,7 @@ public class LibrarianManagement extends javax.swing.JFrame {
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Librarian deleted successfully!");
-                loadLibrarians(); // Refresh the table
+                loadLibrarians(); 
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to delete librarian.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -362,7 +344,6 @@ public class LibrarianManagement extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new LibrarianManagement().setVisible(true);

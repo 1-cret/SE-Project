@@ -84,7 +84,7 @@ public class LibrarianView extends javax.swing.JFrame {
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Get counts for each borrow status
+                
                 String borrowedQuery = "SELECT COUNT(*) AS TOTAL FROM BORROW WHERE BORROW_STATUS = 'Borrowed'";
                 ResultSet borrowedRs = DBManager.query(conn, borrowedQuery);
                 if (borrowedRs != null && borrowedRs.next()) {

@@ -24,7 +24,6 @@ public class AdminController {
     private String role;
     private Status status;
 
-    // Default constructor
     public AdminController() {
         this.userID = 0;
         this.name = "";
@@ -35,16 +34,13 @@ public class AdminController {
         this.admin = new Admin(this.userID, this.name, this.email, this.password, this.role, this.status);
     }
 
-    // Constructor for login credentials
     public AdminController(String email, String password) {
         this.email = email;
         this.password = password;
         this.role = "admin";
         this.admin = new Admin(0, null, email, password, null, null);
-        // Other fields will be populated from database if login is successful
     }
 
-    // Full parameterized constructor
     public AdminController(int userID, String name, String email, String password, Status status) {
         this.userID = userID;
         this.name = name;
@@ -62,7 +58,6 @@ public class AdminController {
         return null;
     }
 
-    // Get all admins from database
     public ArrayList<Admin> getAllAdmins() {
         ArrayList<Admin> admins = new ArrayList<>();
         Connection conn = DBManager.openCon();
@@ -95,7 +90,6 @@ public class AdminController {
         return admins;
     }
 
-    // Add a new admin
     public boolean addAdmin(String name, String email, String password, Status status) throws SQLException {
         Connection conn = DBManager.openCon();
 
@@ -109,10 +103,10 @@ public class AdminController {
         if (lastIdResult != null && lastIdResult.next()) {
             lastId = lastIdResult.getInt("LAST_ID");
         }
-        int nextID=lastId+1;
+        int nextID = lastId + 1;
         boolean isActive = (status == Status.ACTIVE);
         String query = "INSERT INTO ADMIN (ID,NAME, EMAIL, PASSWORD, STATUS) VALUES ("
-               +nextID+", '"+ name + "', '" + email + "', '" + password + "', " + true + ")";
+                + nextID + ", '" + name + "', '" + email + "', '" + password + "', " + true + ")";
         System.out.println(query);
         try {
             int result = DBManager.updateQuery(conn, query);
@@ -122,7 +116,6 @@ public class AdminController {
         }
     }
 
-    // Update an existing admin
     public boolean updateAdmin(int id, String name, String email, String password, Status status) {
         Connection conn = DBManager.openCon();
 
@@ -143,7 +136,6 @@ public class AdminController {
         }
     }
 
-    // Delete an admin
     public boolean deleteAdmin(int id) {
         Connection conn = DBManager.openCon();
 
@@ -161,9 +153,8 @@ public class AdminController {
         }
     }
 
-    // Get system statistics
     public int[] getSystemStats() {
-        int[] stats = new int[3]; // returns, users, books
+        int[] stats = new int[3];
         Connection conn = DBManager.openCon();
 
         if (conn == null) {
@@ -171,14 +162,13 @@ public class AdminController {
         }
 
         try {
-            // Count all returned books (status = 'RETURNED')
+
             String returnsQuery = "SELECT COUNT(*) AS count FROM BORROW WHERE STATUS = 'RETURNED'";
             ResultSet returnsRs = DBManager.query(conn, returnsQuery);
             if (returnsRs != null && returnsRs.next()) {
                 stats[0] = returnsRs.getInt("count");
             }
 
-            // Count all users (across all tables - STUDENT, LIBRARIAN, ADMIN)
             String usersQuery = "SELECT (SELECT COUNT(*) FROM STUDENT) + "
                     + "(SELECT COUNT(*) FROM LIBRARIAN) + "
                     + "(SELECT COUNT(*) FROM ADMIN) AS total_users FROM DUAL";
@@ -187,7 +177,6 @@ public class AdminController {
                 stats[1] = usersRs.getInt("total_users");
             }
 
-            // Count all books
             String booksQuery = "SELECT COUNT(*) AS count FROM BOOK";
             ResultSet booksRs = DBManager.query(conn, booksQuery);
             if (booksRs != null && booksRs.next()) {

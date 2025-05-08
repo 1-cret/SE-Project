@@ -25,7 +25,6 @@ public class StudentController{
     private String role;
     private UserStatus.Status status;
     
-    // Enum for tracking signup status
     public enum Status {
         SUCCESS,
         EMPTY_FIELDS,

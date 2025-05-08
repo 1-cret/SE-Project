@@ -125,8 +125,7 @@ public class Borrow {
         }
         
         try {
-            // Get the last borrow ID and increment it
-            int nextBorrowId = 1; // Default starting ID if no records exist
+            int nextBorrowId = 1;
             String getLastIdQuery = "SELECT MAX(BORROW_ID) AS LAST_ID FROM BORROW";
             ResultSet lastIdResult = DBManager.query(conn, getLastIdQuery);
             if (lastIdResult != null && lastIdResult.next()) {
@@ -136,16 +135,13 @@ public class Borrow {
                 }
             }
             
-            // Calculate dates
-            Date borrowDate = new Date(); // Current date
+            Date borrowDate = new Date();
             
-            // Set due date (14 days from today)
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(borrowDate);
             calendar.add(Calendar.DAY_OF_MONTH, 14);
             Date dueDate = calendar.getTime();
             
-            // Insert borrow record with the new ID
             java.sql.Date sqlBorrowDate = new java.sql.Date(borrowDate.getTime());
             java.sql.Date sqlDueDate = new java.sql.Date(dueDate.getTime());
             String insertQuery = "INSERT INTO BORROW (BORROW_ID, BORROW_DATE, DUE_DATE, RENEWAL_COUNT, FINE_AMOUNT, STUDENT_ID, BOOK_ID) " +
@@ -155,7 +151,6 @@ public class Borrow {
             int result = DBManager.updateQuery(conn, insertQuery);
             
             if (result > 0) {
-                // Update book status to unavailable
                 String updateBookQuery = "UPDATE BOOK SET STATUS = 'DISABLED' WHERE ISBN = '" + bookISBN + "'";
                 DBManager.updateQuery(conn, updateBookQuery);
                 return true;

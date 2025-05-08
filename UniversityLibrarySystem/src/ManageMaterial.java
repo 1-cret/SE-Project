@@ -317,31 +317,25 @@ public class ManageMaterial extends javax.swing.JFrame {
         });
     }
 
-    /**
-     * Set up the table model and columns
-     */
     private void setupTable() {
         tableModel = (DefaultTableModel) jTable2.getModel();
-        // Clear existing data
+        
         tableModel.setRowCount(0);
         
-        // Set column headers
+        
         String[] columnNames = {"ISBN", "Book Title", "Authors", "Category", "Status", "Location"};
         tableModel.setColumnIdentifiers(columnNames);
     }
     
-    /**
-     * Load books from the database
-     */
     private void loadBooks() {
-        // Clear existing rows
+        
         tableModel.setRowCount(0);
         
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Query to get all books with author and location information
+                
                 String query = "SELECT b.ISBN, b.TITLE, b.STATUS, b.CATEGORY, " +
                         "a1.NAME AS AUTHOR1, a2.NAME AS AUTHOR2, " +
                         "l.FLOOR, l.SECTION, l.SHELF, l.ROW " +
@@ -354,13 +348,13 @@ public class ManageMaterial extends javax.swing.JFrame {
                 ResultSet rs = DBManager.query(conn, query);
                 
                 while (rs != null && rs.next()) {
-                    // Get data from the result set
+                    
                     String isbn = rs.getString("ISBN");
                     String title = rs.getString("TITLE");
                     String status = rs.getString("STATUS");
                     String category = rs.getString("CATEGORY");
                     
-                    // Combine authors
+                    
                     String author1 = rs.getString("AUTHOR1");
                     String author2 = rs.getString("AUTHOR2");
                     String authors = author1;
@@ -368,7 +362,7 @@ public class ManageMaterial extends javax.swing.JFrame {
                         authors += ", " + author2;
                     }
                     
-                    // Format location information
+                    
                     String location = "";
                     int floor = rs.getInt("FLOOR");
                     String section = rs.getString("SECTION");
@@ -379,13 +373,13 @@ public class ManageMaterial extends javax.swing.JFrame {
                         location = "Floor " + floor + ", " + section + " section, Shelf " + shelf + ", Row " + row;
                     }
                     
-                    // Add row to the table
+                    
                     tableModel.addRow(new Object[]{
                         isbn, title, authors, category, status, location
                     });
                 }
                 
-                // If no books were found, show a message
+                
                 if (tableModel.getRowCount() == 0) {
                     tableModel.addRow(new Object[]{"No books found", "", "", "", "", ""});
                 }
@@ -399,17 +393,14 @@ public class ManageMaterial extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Add a new book to the database
-     */
     private void addBook() throws SQLException {
-        // Create a dialog to get new book information
+        
         String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
         if (isbn == null || isbn.trim().isEmpty()) {
-            return; // User cancelled
+            return; 
         }
         
-        // Check if ISBN already exists
+        
         if (isbnExists(isbn)) {
             JOptionPane.showMessageDialog(this, "A book with this ISBN already exists.", 
                     "Duplicate ISBN", JOptionPane.WARNING_MESSAGE);
@@ -433,19 +424,19 @@ public class ManageMaterial extends javax.swing.JFrame {
         
         String author2 = JOptionPane.showInputDialog(this, "Enter Secondary Author (optional):", "Add New Book", JOptionPane.QUESTION_MESSAGE);
         
-        // Get or create author IDs
+        
         int author1Id = getOrCreateAuthor(author1);
         int author2Id = author2 != null && !author2.trim().isEmpty() ? getOrCreateAuthor(author2) : 0;
         
-        // Create location entry
+        
         int locationId = createLocation();
         
-        // Insert book record
+        
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Insert book
+                
                 String insertQuery = "INSERT INTO BOOK (ISBN, TITLE, STATUS, CATEGORY, AUTHOR1_ID, AUTHOR2_ID, LOCATION_ID) " +
                         "VALUES ('" + isbn + "', '" + title + "', 'Available', '" + category + "', " + 
                         author1Id + ", " + (author2Id > 0 ? author2Id : "NULL") + ", " + locationId + ")";
@@ -454,7 +445,7 @@ public class ManageMaterial extends javax.swing.JFrame {
                 
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Book added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    loadBooks(); // Refresh the table
+                    loadBooks(); 
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to add the book.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -464,9 +455,6 @@ public class ManageMaterial extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Check if a book with the given ISBN exists
-     */
     private boolean isbnExists(String isbn) {
         Connection conn = null;
         try {
@@ -487,9 +475,6 @@ public class ManageMaterial extends javax.swing.JFrame {
         return false;
     }
     
-    /**
-     * Get an author ID or create a new author
-     */
     private int getOrCreateAuthor(String authorName) {
         if (authorName == null || authorName.trim().isEmpty()) {
             return 0;
@@ -499,7 +484,7 @@ public class ManageMaterial extends javax.swing.JFrame {
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Check if author exists
+                
                 String query = "SELECT AUTHOR_ID FROM AUTHOR WHERE NAME = '" + authorName + "'";
                 ResultSet rs = DBManager.query(conn, query);
                 
@@ -507,12 +492,12 @@ public class ManageMaterial extends javax.swing.JFrame {
                     return rs.getInt("AUTHOR_ID");
                 }
                 
-                // Author doesn't exist, create new
-                String bio = ""; // Empty bio for now
+                
+                String bio = ""; 
                 String insertQuery = "INSERT INTO AUTHOR (NAME, BIO) VALUES ('" + authorName + "', '" + bio + "')";
                 DBManager.updateQuery(conn, insertQuery);
                 
-                // Get the new author ID
+                
                 rs = DBManager.query(conn, "SELECT MAX(AUTHOR_ID) AS AUTHOR_ID FROM AUTHOR");
                 if (rs != null && rs.next()) {
                     return rs.getInt("AUTHOR_ID");
@@ -525,18 +510,15 @@ public class ManageMaterial extends javax.swing.JFrame {
         }
         return 0;
     }
-    
-    /**
-     * Create a new location entry based on user input
-     */
+
     private int createLocation() {
-        // Get user input for location details
+        
         String floorStr = JOptionPane.showInputDialog(this, "Enter Floor Number (1-5):", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (floorStr == null) {
-            return 0; // User cancelled
+            return 0; 
         }
         
-        // Validate floor input
+        
         int floor;
         try {
             floor = Integer.parseInt(floorStr);
@@ -551,20 +533,20 @@ public class ManageMaterial extends javax.swing.JFrame {
         
         String section = JOptionPane.showInputDialog(this, "Enter Section (e.g., A, B, Science, Fiction):", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (section == null || section.trim().isEmpty()) {
-            return 0; // User cancelled or empty input
+            return 0; 
         }
         
         String shelf = JOptionPane.showInputDialog(this, "Enter Shelf Number or ID:", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (shelf == null || shelf.trim().isEmpty()) {
-            return 0; // User cancelled or empty input
+            return 0; 
         }
         
         String rowStr = JOptionPane.showInputDialog(this, "Enter Row Number:", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (rowStr == null) {
-            return 0; // User cancelled
+            return 0; 
         }
         
-        // Validate row input
+        
         float row;
         try {
             row = Float.parseFloat(rowStr);
@@ -600,10 +582,7 @@ public class ManageMaterial extends javax.swing.JFrame {
         }
         return 0;
     }
-    
-    /**
-     * Update an existing book
-     */
+
     private void updateBook() throws SQLException {
         int selectedRow = jTable2.getSelectedRow();
         if (selectedRow < 0) {
@@ -617,10 +596,10 @@ public class ManageMaterial extends javax.swing.JFrame {
         String currentCategory = (String) jTable2.getValueAt(selectedRow, 3);
         String currentStatus = (String) jTable2.getValueAt(selectedRow, 4);
         
-        // Get updated information
+        
         String newTitle = JOptionPane.showInputDialog(this, "Enter Updated Title:", currentTitle);
         if (newTitle == null) {
-            return; // User cancelled
+            return; 
         }
         
         String newCategory = JOptionPane.showInputDialog(this, "Enter Updated Category:", currentCategory);
@@ -628,7 +607,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             return;
         }
         
-        // Status options
+        
         String[] statusOptions = {"Available", "Unavailable", "Reserved", "In Maintenance"};
         String newStatus = (String) JOptionPane.showInputDialog(
                 this, 
@@ -643,7 +622,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             return;
         }
         
-        // Update the book in the database
+        
         Connection conn = null;
         try {
             conn = DBManager.openCon();
@@ -657,7 +636,7 @@ public class ManageMaterial extends javax.swing.JFrame {
                 
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Book updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    loadBooks(); // Refresh the table
+                    loadBooks(); 
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to update the book.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -666,10 +645,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             DBManager.closeCon(conn);
         }
     }
-    
-    /**
-     * Delete a book from the database
-     */
+
     private void deleteBook() throws SQLException {
         int selectedRow = jTable2.getSelectedRow();
         if (selectedRow < 0) {
@@ -681,14 +657,14 @@ public class ManageMaterial extends javax.swing.JFrame {
         String isbn = (String) jTable2.getValueAt(selectedRow, 0);
         String title = (String) jTable2.getValueAt(selectedRow, 1);
         
-        // Check if the book is currently borrowed
+        
         if (isBookBorrowed(isbn)) {
             JOptionPane.showMessageDialog(this, "This book is currently borrowed and cannot be deleted.", 
                     "Cannot Delete", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
-        // Confirm deletion
+        
         int confirm = JOptionPane.showConfirmDialog(this, 
                 "Are you sure you want to delete the book '" + title + "' (ISBN: " + isbn + ")?", 
                 "Confirm Deletion", 
@@ -699,7 +675,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             return;
         }
         
-        // Delete the book
+        
         Connection conn = null;
         try {
             conn = DBManager.openCon();
@@ -710,7 +686,7 @@ public class ManageMaterial extends javax.swing.JFrame {
                 
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Book deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    loadBooks(); // Refresh the table
+                    loadBooks(); 
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to delete the book.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -719,10 +695,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             DBManager.closeCon(conn);
         }
     }
-    
-    /**
-     * Check if a book is currently borrowed
-     */
+
     private boolean isBookBorrowed(String isbn) {
         Connection conn = null;
         try {

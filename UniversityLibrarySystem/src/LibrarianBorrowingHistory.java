@@ -29,28 +29,22 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         setupTable();
         loadBorrowingRecords();
     }
-    
-    /**
-     * Set up the table model
-     */
+
     private void setupTable() {
         tableModel = (DefaultTableModel) jTable1.getModel();
-        // Clear existing rows
+        
         tableModel.setRowCount(0);
     }
     
-    /**
-     * Load all borrowing records from the database
-     */
     private void loadBorrowingRecords() {
-        // Clear existing rows
+        
         tableModel.setRowCount(0);
         
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Query to get all borrowing records with book and student information
+                
                 String query = "SELECT b.BORROW_ID, b.BORROW_DATE, b.DUE_DATE, b.RETURN_DATE, " +
                         "b.RENEWAL_COUNT, b.FINE_AMOUNT, b.BORROW_STATUS, " +
                         "s.ID AS STUDENT_ID, s.NAME AS STUDENT_NAME, " +
@@ -65,7 +59,7 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 
                 while (rs != null && rs.next()) {
-                    // Get data from the result set
+                    
                     int borrowId = rs.getInt("BORROW_ID");
                     Date borrowDate = rs.getDate("BORROW_DATE");
                     Date dueDate = rs.getDate("DUE_DATE");
@@ -80,12 +74,12 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
                     String isbn = rs.getString("ISBN");
                     String bookTitle = rs.getString("BOOK_TITLE");
                     
-                    // Format dates as strings
+                    
                     String borrowDateStr = borrowDate != null ? dateFormat.format(borrowDate) : "";
                     String dueDateStr = dueDate != null ? dateFormat.format(dueDate) : "";
                     String returnDateStr = returnDate != null ? dateFormat.format(returnDate) : "";
                     
-                    // Add row to the table
+                    
                     tableModel.addRow(new Object[]{
                         borrowId,
                         isbn,
@@ -110,24 +104,21 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Search for borrowing records based on search criteria
-     */
     private void searchBorrowings() {
         String searchText = searchTextField.getText().trim();
         if (searchText.isEmpty()) {
-            loadBorrowingRecords(); // If search box is empty, load all records
+            loadBorrowingRecords(); 
             return;
         }
         
-        // Clear existing rows
+        
         tableModel.setRowCount(0);
         
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Query to search borrowing records
+                
                 String query = "SELECT b.BORROW_ID, b.BORROW_DATE, b.DUE_DATE, b.RETURN_DATE, " +
                         "b.RENEWAL_COUNT, b.FINE_AMOUNT, b.BORROW_STATUS, " +
                         "s.ID AS STUDENT_ID, s.NAME AS STUDENT_NAME, " +
@@ -147,7 +138,7 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 
                 while (rs != null && rs.next()) {
-                    // Get data from the result set
+                    
                     int borrowId = rs.getInt("BORROW_ID");
                     Date borrowDate = rs.getDate("BORROW_DATE");
                     Date dueDate = rs.getDate("DUE_DATE");
@@ -162,12 +153,12 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
                     String isbn = rs.getString("ISBN");
                     String bookTitle = rs.getString("BOOK_TITLE");
                     
-                    // Format dates as strings
+                    
                     String borrowDateStr = borrowDate != null ? dateFormat.format(borrowDate) : "";
                     String dueDateStr = dueDate != null ? dateFormat.format(dueDate) : "";
                     String returnDateStr = returnDate != null ? dateFormat.format(returnDate) : "";
                     
-                    // Add row to the table
+                    
                     tableModel.addRow(new Object[]{
                         borrowId,
                         isbn,
@@ -192,9 +183,6 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Handle return book operation
-     */
     private void returnBook() {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow < 0) {
@@ -203,18 +191,18 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
             return;
         }
         
-        // Get the borrow ID
+        
         int borrowId = (int) jTable1.getValueAt(selectedRow, 0);
         String status = (String) jTable1.getValueAt(selectedRow, 10);
         
-        // Check if the book is already returned
+        
         if (status.equalsIgnoreCase("Returned")) {
             JOptionPane.showMessageDialog(this, "This book has already been returned.", 
                     "Already Returned", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         
-        // Ask for confirmation
+        
         int confirm = JOptionPane.showConfirmDialog(this, 
                 "Are you sure you want to mark this book as returned?", 
                 "Confirm Return", 
@@ -224,17 +212,17 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
             return;
         }
         
-        // Get book ISBN to update book status
+        
         String isbn = (String) jTable1.getValueAt(selectedRow, 1);
         
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Start a transaction
+                
                 conn.setAutoCommit(false);
                 
-                // Update the borrow record to mark as returned
+                
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 String currentDate = dateFormat.format(new Date());
                 
@@ -243,14 +231,14 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
                 
                 int borrowUpdateResult = DBManager.updateQuery(conn, updateBorrowQuery);
                 
-                // Update the book status to Available
+                
                 String updateBookQuery = "UPDATE BOOK SET STATUS = 'Available' WHERE ISBN = '" + isbn + "'";
                 int bookUpdateResult = DBManager.updateQuery(conn, updateBookQuery);
                 
                 if (borrowUpdateResult > 0 && bookUpdateResult > 0) {
                     conn.commit();
                     JOptionPane.showMessageDialog(this, "Book has been returned successfully!");
-                    loadBorrowingRecords(); // Refresh the table
+                    loadBorrowingRecords(); 
                 } else {
                     conn.rollback();
                     JOptionPane.showMessageDialog(this, "Failed to return the book.", 
@@ -284,9 +272,6 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         renewBorrowing();
     }//GEN-LAST:event_renewBorrowBtnActionPerformed
     
-    /**
-     * Renew a borrowing period for a selected book
-     */
     private void renewBorrowing() throws SQLException {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow < 0) {
@@ -295,27 +280,27 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
             return;
         }
         
-        // Get the borrow ID and other details
+        
         int borrowId = (int) jTable1.getValueAt(selectedRow, 0);
         String status = (String) jTable1.getValueAt(selectedRow, 10);
         int renewalCount = (int) jTable1.getValueAt(selectedRow, 8);
         String bookTitle = (String) jTable1.getValueAt(selectedRow, 2);
         
-        // Check if the book is already returned
+        
         if (status.equalsIgnoreCase("Returned")) {
             JOptionPane.showMessageDialog(this, "Cannot renew a book that has already been returned.", 
                     "Already Returned", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
-        // Check if renewal limit is reached (assuming max is 3)
+        
         if (renewalCount >= 3) {
             JOptionPane.showMessageDialog(this, "This book has already been renewed the maximum number of times (3).", 
                     "Renewal Limit Reached", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
-        // Ask for confirmation
+        
         int confirm = JOptionPane.showConfirmDialog(this, 
                 "Renew borrowing period for book '" + bookTitle + "'?", 
                 "Confirm Renewal", 
@@ -325,26 +310,26 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
             return;
         }
         
-        // Calculate new due date (14 days from now)
+        
         java.util.Date currentDate = new java.util.Date();
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTime(currentDate);
         calendar.add(java.util.Calendar.DAY_OF_MONTH, 14);
         java.util.Date newDueDate = calendar.getTime();
         
-        // Format for SQL
+        
         java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
         String formattedNewDueDate = dateFormat.format(newDueDate);
         
-        // Update the borrow record
+        
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Update due date and increment renewal count
+                
                 String updateQuery = "UPDATE BORROW SET DUE_DATE = '" + formattedNewDueDate + "', " +
                         "RENEWAL_COUNT = " + (renewalCount + 1) + ", " +
-                        "BORROW_STATUS = 'Borrowed' " + // Reset to 'Borrowed' in case it was 'Overdue'
+                        "BORROW_STATUS = 'Borrowed' " + 
                         "WHERE BORROW_ID = " + borrowId;
                 
                 int result = DBManager.updateQuery(conn, updateQuery);
@@ -352,7 +337,7 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Borrowing period renewed successfully!\nNew due date: " + formattedNewDueDate, 
                             "Renewal Successful", JOptionPane.INFORMATION_MESSAGE);
-                    loadBorrowingRecords(); // Refresh the data
+                    loadBorrowingRecords(); 
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to renew borrowing period.", 
                             "Renewal Failed", JOptionPane.ERROR_MESSAGE);
@@ -597,7 +582,6 @@ public class LibrarianBorrowingHistory extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new LibrarianBorrowingHistory().setVisible(true);

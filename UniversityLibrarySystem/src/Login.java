@@ -285,7 +285,7 @@ public class Login extends javax.swing.JFrame {
         String email = StudentLoginEmailField.getText();
         String password = new String(StudenPasswordLoginField.getPassword());
         
-        // Validate input fields
+        
         if (email.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter both email and password", "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -330,8 +330,8 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_StudentloginbtnActionPerformed
 
     private void SignUpLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SignUpLinkMouseClicked
-        this.dispose(); // Close the current login form
-        new StudentSignUp().setVisible(true); // Open the sign-up form
+        this.dispose(); 
+        new StudentSignUp().setVisible(true); 
     }//GEN-LAST:event_SignUpLinkMouseClicked
 
     private void RoleComboxBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RoleComboxBoxActionPerformed
@@ -380,7 +380,6 @@ public class Login extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Login().setVisible(true);

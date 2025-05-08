@@ -15,7 +15,6 @@ public class Admin {
     private String role;
     private AdminController.Status status;
     
-    // Constructor
     public Admin(int userID, String name, String email, String password, String role, AdminController.Status status) {
         this.userID = userID;
         this.name = name;

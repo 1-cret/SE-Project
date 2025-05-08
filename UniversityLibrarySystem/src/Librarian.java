@@ -18,7 +18,6 @@ public class Librarian {
     private String role;
     private LibrarianController.Status status;
     
-    // Constructor
     public Librarian(int userID, String name, String email, String password, String role, LibrarianController.Status status) {
         this.userID = userID;
         this.name = name;
@@ -28,7 +27,6 @@ public class Librarian {
         this.status = status;
     }
     
-    // Getters and setters
     public int getUserID() {
         return userID;
     }
@@ -105,7 +103,6 @@ public class Librarian {
         return null;
     }
     
-    // Get all librarians from database
     public static List<Librarian> getAllLibrarians() {
         Connection conn = DBManager.openCon();
         List<Librarian> librarians = new ArrayList<>();
@@ -139,7 +136,6 @@ public class Librarian {
         return librarians;
     }
     
-    // Add new librarian to database
     public boolean addLibrarian() throws SQLException {
         Connection conn = DBManager.openCon();
         if (conn == null) {
@@ -169,7 +165,6 @@ public class Librarian {
         }
     }
     
-    // Update existing librarian in database
     public boolean updateLibrarian() {
         Connection conn = DBManager.openCon();
         if (conn == null) {
@@ -193,7 +188,6 @@ public class Librarian {
         }
     }
     
-    // Delete librarian from database
     public boolean deleteLibrarian() {
         Connection conn = DBManager.openCon();
         if (conn == null) {
@@ -213,7 +207,6 @@ public class Librarian {
         }
     }
     
-    // Get librarian by ID
     public static Librarian getLibrarianById(int id) {
         Connection conn = DBManager.openCon();
         if (conn == null) {

@@ -30,10 +30,6 @@ public class BorrowMaterial extends javax.swing.JFrame {
         loadAvailableBooks();
     }
     
-    /**
-     * Creates new form BorrowMaterial for a specific student
-     * @param student the Student object who will borrow books
-     */
     public BorrowMaterial(Student student) {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -42,22 +38,16 @@ public class BorrowMaterial extends javax.swing.JFrame {
         loadAvailableBooks();
     }
 
-    /**
-     * Setup table columns and formatting
-     */
     private void setupTable() {
         tableModel = (DefaultTableModel) jTable2.getModel();
-        // Clear existing data
+        
         tableModel.setRowCount(0);
         
-        // Ensure column headers are set correctly
+        
         String[] columnNames = {"ISBN", "Book Name", "Author", "Category", "Location"};
         tableModel.setColumnIdentifiers(columnNames);
     }
     
-    /**
-     * Load available books from the database
-     */
     private void loadAvailableBooks() {
         Connection conn = DBManager.openCon();
         if (conn == null) {

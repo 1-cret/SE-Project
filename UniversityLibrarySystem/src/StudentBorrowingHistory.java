@@ -22,9 +22,6 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
     private DefaultTableModel tableModel;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    /**
-     * Creates new form BorrowingHistory
-     */
     public StudentBorrowingHistory() {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -54,37 +51,28 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
         setupTable();
         loadBorrowingHistory();
     }
-    
-    /**
-     * Setup table columns and formatting
-     */
+
     private void setupTable() {
         tableModel = (DefaultTableModel) jTable1.getModel();
-        // Clear existing data
         tableModel.setRowCount(0);
         
-        // Set column headers
         String[] columnNames = {"Borrow ID", "Book Title", "Borrow Date", "Due Date", "Return Date", "Status", "Fine Amount"};
         tableModel.setColumnIdentifiers(columnNames);
         
-        // Configure table appearance
-        jTable1.getColumnModel().getColumn(0).setPreferredWidth(70);  // Borrow ID
-        jTable1.getColumnModel().getColumn(1).setPreferredWidth(200); // Book Title
-        jTable1.getColumnModel().getColumn(2).setPreferredWidth(100); // Borrow Date
-        jTable1.getColumnModel().getColumn(3).setPreferredWidth(100); // Due Date
-        jTable1.getColumnModel().getColumn(4).setPreferredWidth(100); // Return Date
-        jTable1.getColumnModel().getColumn(5).setPreferredWidth(80);  // Status
-        jTable1.getColumnModel().getColumn(6).setPreferredWidth(80);  // Fine Amount
+        jTable1.getColumnModel().getColumn(0).setPreferredWidth(70);  
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(200); 
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(100); 
+        jTable1.getColumnModel().getColumn(3).setPreferredWidth(100); 
+        jTable1.getColumnModel().getColumn(4).setPreferredWidth(100); 
+        jTable1.getColumnModel().getColumn(5).setPreferredWidth(80);  
+        jTable1.getColumnModel().getColumn(6).setPreferredWidth(80);  
     }
     
-    /**
-     * Load borrowing history for the current student from the database
-     */
     private void loadBorrowingHistory() {
         Connection conn = DBManager.openCon();
         if (conn == null) {
             System.out.println("Failed to connect to database");
-            // Show an error message in the UI
+            
             tableModel.setRowCount(0);
             tableModel.addRow(new Object[]{"Error connecting to database", "", "", "", "", "", ""});
             return;
@@ -101,7 +89,7 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
             
             System.out.println("Executing query: " + query);
             
-            // Get statement directly instead of using DBManager.query
+            
             stmt = conn.createStatement();
             rs = stmt.executeQuery(query);
             
@@ -110,24 +98,24 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
             int rowCount = 0;
 
             while (rs != null && rs.next()) {
-                // Add test row
+                
                 rowCount++;
                 int borrowId = rs.getInt("BORROW_ID");
                 String bookTitle = rs.getString("TITLE");
-                // s
-                // Format dates for display
+                
+                
                 String borrowDate = formatDate(rs.getDate("BORROW_DATE"));
                 String dueDate = formatDate(rs.getDate("DUE_DATE"));
                 String returnDate = formatDate(rs.getDate("RETURN_DATE"));
                 
-                // Determine status based on return date and due date
+                
                 String status = determineStatus(rs.getDate("RETURN_DATE"), rs.getDate("DUE_DATE"));
                 
                 double fineAmount = rs.getDouble("FINE_AMOUNT");
                 
                 System.out.println("Adding row: ID=" + borrowId + ", Title=" + bookTitle);
                 
-                // Add row to table
+                
                 tableModel.addRow(new Object[]{
                     borrowId, bookTitle, borrowDate, dueDate, returnDate, status, fineAmount
                 });
@@ -135,18 +123,18 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
             
             System.out.println("Loaded " + rowCount + " records for student ID: " + studentID);
             
-            // If no records were found, add a message
+            
             if (rowCount == 0) {
                 tableModel.addRow(new Object[]{"No borrowing records found", "", "", "", "", "", ""});
             }
             
         } catch (SQLException ex) {
             System.out.println("Error loading borrowing history: " + ex.getMessage());
-            // Show the error in the table
+            
             tableModel.setRowCount(0);
             tableModel.addRow(new Object[]{"Database error: " + ex.getMessage(), "", "", "", "", "", ""});
         } finally {
-            // Close resources properly
+            
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
@@ -157,24 +145,13 @@ public class StudentBorrowingHistory extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Format a date for display, handling null dates
-     * @param date the date to format
-     * @return formatted date string or empty string if date is null
-     */
     private String formatDate(Date date) {
         if (date == null) {
             return "";
         }
         return dateFormat.format(date);
     }
-    
-    /**
-     * Determine the status of a borrowed book
-     * @param returnDate the date the book was returned
-     * @param dueDate the date the book was due
-     * @return status string (Returned, Overdue, Active)
-     */
+
     private String determineStatus(Date returnDate, Date dueDate) {
         if (returnDate != null) {
             return "Returned";

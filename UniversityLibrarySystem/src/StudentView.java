@@ -33,7 +33,7 @@ public class StudentView extends javax.swing.JFrame {
         
         updateStudentInfo();
         
-       // loadBorrowingStatistics();
+       
     }
     
     private void updateStudentInfo() {
@@ -44,15 +44,12 @@ public class StudentView extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * Loads borrowing statistics from the database
-     */
     private void loadBorrowingStatistics() {
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                // Get total borrowings
+                
                 String totalQuery = "SELECT COUNT(*) AS TOTAL FROM BORROW WHERE STUDENT_ID = " + student.getUserID();
                 ResultSet totalResult = DBManager.query(conn, totalQuery);
                 if (totalResult != null && totalResult.next()) {
@@ -60,7 +57,7 @@ public class StudentView extends javax.swing.JFrame {
                     jLabel2.setText(String.valueOf(totalBorrowings));
                 }
                 
-                // Get returned books count
+                
                 String returnedQuery = "SELECT COUNT(*) AS RETURNED FROM BORROW WHERE STUDENT_ID = " + student.getUserID() + 
                                        " AND STATUS = 'Returned'";
                 ResultSet returnedResult = DBManager.query(conn, returnedQuery);
@@ -69,7 +66,7 @@ public class StudentView extends javax.swing.JFrame {
                     jLabel4.setText(String.valueOf(returnedCount));
                 }
                 
-                // Get currently borrowed books count
+                
                 String borrowedQuery = "SELECT COUNT(*) AS BORROWED FROM BORROW WHERE STUDENT_ID = " + student.getUserID() + 
                                        " AND STATUS = 'Borrowed'";
                 ResultSet borrowedResult = DBManager.query(conn, borrowedQuery);
@@ -78,7 +75,7 @@ public class StudentView extends javax.swing.JFrame {
                     jLabel6.setText(String.valueOf(borrowedCount));
                 }
                 
-                // Get overdue books count
+                
                 String overdueQuery = "SELECT COUNT(*) AS OVERDUE FROM BORROW WHERE STUDENT_ID = " + student.getUserID() + 
                                       " AND STATUS = 'Overdue'";
                 ResultSet overdueResult = DBManager.query(conn, overdueQuery);

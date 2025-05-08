@@ -278,7 +278,7 @@ public class AdminManagement extends javax.swing.JFrame {
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Admin updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadAdmins(); // Refresh the table
+            loadAdmins(); 
         } else {
             JOptionPane.showMessageDialog(this, "Failed to update admin.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -294,10 +294,10 @@ public class AdminManagement extends javax.swing.JFrame {
             return;
         }
         
-        // Get the selected admin ID
+        
         int adminId = (int) jTable1.getValueAt(selectedRow, 0);
         
-        // Confirm deletion
+        
         int confirm = JOptionPane.showConfirmDialog(this, 
                 "Are you sure you want to delete this admin?", 
                 "Confirm Deletion", 
@@ -308,7 +308,7 @@ public class AdminManagement extends javax.swing.JFrame {
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Admin deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadAdmins(); // Refresh the table
+                loadAdmins(); 
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to delete admin.", "Error", JOptionPane.ERROR_MESSAGE);
             }

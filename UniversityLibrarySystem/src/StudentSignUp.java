@@ -202,20 +202,20 @@ public class StudentSignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_SignUpEmailFieldActionPerformed
  
     private void StudentloginbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StudentloginbtnActionPerformed
-        // Get form data
+        
         String name = SignUpNameField.getText().trim();
         String email = SignUpEmailField.getText().trim();
         String password = new String(SignUpPasswordField.getPassword()).trim();
 
-        // Create controller instance and attempt signup
+        
         StudentController controller = new StudentController(null, null, null, null, null, null);
         StudentController.Status status = controller.signUp(name, email, password);
         
-        // Handle signup result based on status
+        
         switch (status) {
             case EMPTY_FIELDS:
                 JOptionPane.showMessageDialog(this, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
-                // Set red border on empty fields for visual feedback
+                
                 if (name.isEmpty()) {
                     SignUpNameField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
                 } else {
@@ -250,14 +250,14 @@ public class StudentSignUp extends javax.swing.JFrame {
                 break;
             
             case SUCCESS:
-                // Set green borders for success visual feedback
+                
                 SignUpNameField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
                 SignUpEmailField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
                 SignUpPasswordField.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.GREEN, 2));
                 
                 JOptionPane.showMessageDialog(this, "Sign up successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 
-                // Redirect to StudentView on success (instead of login screen)
+                
                 this.dispose();
                 new StudentView(controller).setVisible(true);
                 break;
@@ -265,8 +265,8 @@ public class StudentSignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_StudentloginbtnActionPerformed
 
     private void SignUpLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SignUpLinkMouseClicked
-        this.dispose(); // Close the current login form
-        new StudentSignUp().setVisible(true); // Open the sign-up form
+        this.dispose(); 
+        new StudentSignUp().setVisible(true); 
     }//GEN-LAST:event_SignUpLinkMouseClicked
 
     /**
