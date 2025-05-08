@@ -1,3 +1,4 @@
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -319,133 +320,105 @@ public class ManageMaterial extends javax.swing.JFrame {
 
     private void setupTable() {
         tableModel = (DefaultTableModel) jTable2.getModel();
-        
+
         tableModel.setRowCount(0);
-        
-        
-        String[] columnNames = {"ISBN", "Book Title", "Authors", "Category", "Status", "Location"};
+
+        String[] columnNames = {"ISBN", "Book Title", "Author 1", "Author 2", "Category", "Status", "Location"};
         tableModel.setColumnIdentifiers(columnNames);
     }
-    
+
     private void loadBooks() {
-        
+
         tableModel.setRowCount(0);
-        
+
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                
-                String query = "SELECT b.ISBN, b.TITLE, b.STATUS, b.CATEGORY, " +
-                        "a1.NAME AS AUTHOR1, a2.NAME AS AUTHOR2, " +
-                        "l.FLOOR, l.SECTION, l.SHELF, l.ROW " +
-                        "FROM BOOK b " +
-                        "LEFT JOIN AUTHOR a1 ON b.AUTHOR1_ID = a1.AUTHOR_ID " +
-                        "LEFT JOIN AUTHOR a2 ON b.AUTHOR2_ID = a2.AUTHOR_ID " +
-                        "LEFT JOIN LOCATION l ON b.LOCATION_ID = l.LOCATION_ID " +
-                        "ORDER BY b.TITLE ASC";
-                
+                String query = "SELECT * FROM BOOK";
+
                 ResultSet rs = DBManager.query(conn, query);
-                
+
                 while (rs != null && rs.next()) {
-                    
+
                     String isbn = rs.getString("ISBN");
                     String title = rs.getString("TITLE");
-                    String status = rs.getString("STATUS");
+                    Boolean status = rs.getBoolean("STATUS");
                     String category = rs.getString("CATEGORY");
-                    
-                    
-                    String author1 = rs.getString("AUTHOR1");
-                    String author2 = rs.getString("AUTHOR2");
-                    String authors = author1;
-                    if (author2 != null && !author2.isEmpty()) {
-                        authors += ", " + author2;
-                    }
-                    
-                    
-                    String location = "";
-                    int floor = rs.getInt("FLOOR");
-                    String section = rs.getString("SECTION");
-                    String shelf = rs.getString("SHELF");
-                    float row = rs.getFloat("ROW");
-                    
-                    if (!rs.wasNull()) {
-                        location = "Floor " + floor + ", " + section + " section, Shelf " + shelf + ", Row " + row;
-                    }
-                    
-                    
+
+                    int author1 = rs.getInt("AUTHOR1_ID");
+                    String author2 = rs.getString("AUTHOR2_ID");
+
+                    int location = rs.getInt("LOCATION_ID");
+
                     tableModel.addRow(new Object[]{
-                        isbn, title, authors, category, status, location
+                        isbn, title, author1, author2, category, status, location
                     });
                 }
-                
-                
+
                 if (tableModel.getRowCount() == 0) {
                     tableModel.addRow(new Object[]{"No books found", "", "", "", "", ""});
                 }
             }
         } catch (SQLException e) {
             System.out.println("Error loading books: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error loading books: " + e.getMessage(), 
+            JOptionPane.showMessageDialog(this, "Error loading books: " + e.getMessage(),
                     "Database Error", JOptionPane.ERROR_MESSAGE);
         } finally {
             DBManager.closeCon(conn);
         }
     }
-    
+
     private void addBook() throws SQLException {
-        
+
         String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
         if (isbn == null || isbn.trim().isEmpty()) {
-            return; 
+            return;
         }
-        
-        
+
         if (isbnExists(isbn)) {
-            JOptionPane.showMessageDialog(this, "A book with this ISBN already exists.", 
+            JOptionPane.showMessageDialog(this, "A book with this ISBN already exists.",
                     "Duplicate ISBN", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         String title = JOptionPane.showInputDialog(this, "Enter Book Title:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
         if (title == null || title.trim().isEmpty()) {
             return;
         }
-        
+
         String category = JOptionPane.showInputDialog(this, "Enter Category:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
         if (category == null) {
             return;
         }
-        
+
         String author1 = JOptionPane.showInputDialog(this, "Enter Primary Author:", "Add New Book", JOptionPane.QUESTION_MESSAGE);
         if (author1 == null) {
             return;
         }
-        
+
         String author2 = JOptionPane.showInputDialog(this, "Enter Secondary Author (optional):", "Add New Book", JOptionPane.QUESTION_MESSAGE);
-        
-        
-        int author1Id = getOrCreateAuthor(author1);
-        int author2Id = author2 != null && !author2.trim().isEmpty() ? getOrCreateAuthor(author2) : 0;
-        
-        
+
+        int author1Id = Integer.parseInt(author1);
+        String author2Id = author2;
+
         int locationId = createLocation();
-        
-        
+
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                
-                String insertQuery = "INSERT INTO BOOK (ISBN, TITLE, STATUS, CATEGORY, AUTHOR1_ID, AUTHOR2_ID, LOCATION_ID) " +
-                        "VALUES ('" + isbn + "', '" + title + "', 'Available', '" + category + "', " + 
-                        author1Id + ", " + (author2Id > 0 ? author2Id : "NULL") + ", " + locationId + ")";
-                
+
+                String insertQuery = "INSERT INTO BOOK (ISBN, TITLE, STATUS, CATEGORY, AUTHOR1_ID, AUTHOR2_ID, LOCATION_ID) "
+                        + "VALUES ('" + isbn + "', '" + title + "', 'true', '" + category + "', "
+                        + author1Id + ", '" + author2Id + "', " + locationId + ")";
+                System.out.println(insertQuery);
+
                 int result = DBManager.updateQuery(conn, insertQuery);
-                
+
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Book added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    loadBooks(); 
+                    loadBooks();
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to add the book.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -454,7 +427,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             DBManager.closeCon(conn);
         }
     }
-    
+
     private boolean isbnExists(String isbn) {
         Connection conn = null;
         try {
@@ -462,7 +435,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             if (conn != null) {
                 String query = "SELECT COUNT(*) AS COUNT FROM BOOK WHERE ISBN = '" + isbn + "'";
                 ResultSet rs = DBManager.query(conn, query);
-                
+
                 if (rs != null && rs.next()) {
                     return rs.getInt("COUNT") > 0;
                 }
@@ -474,30 +447,38 @@ public class ManageMaterial extends javax.swing.JFrame {
         }
         return false;
     }
-    
+
     private int getOrCreateAuthor(String authorName) {
         if (authorName == null || authorName.trim().isEmpty()) {
             return 0;
         }
-        
+
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                
+
                 String query = "SELECT AUTHOR_ID FROM AUTHOR WHERE NAME = '" + authorName + "'";
                 ResultSet rs = DBManager.query(conn, query);
-                
+
                 if (rs != null && rs.next()) {
                     return rs.getInt("AUTHOR_ID");
                 }
+
+                String bio = "";
                 
+                String lastIdQuery = "SELECT MAX(AUTHOR_ID) AS LAST_ID FROM AUTHOR";
+                ResultSet lastIdResult = DBManager.query(conn, lastIdQuery);
+                int lastId = 0;
+                if (lastIdResult != null && lastIdResult.next()) {
+                    lastId = lastIdResult.getInt("LAST_ID");
+                }
                 
-                String bio = ""; 
-                String insertQuery = "INSERT INTO AUTHOR (NAME, BIO) VALUES ('" + authorName + "', '" + bio + "')";
+                int nextId = lastId + 1;
+                
+                String insertQuery = "INSERT INTO AUTHOR (AUTHOR_ID, NAME, BIO) VALUES (" + nextId + "'" + authorName + "', '" + bio + "')";
                 DBManager.updateQuery(conn, insertQuery);
-                
-                
+
                 rs = DBManager.query(conn, "SELECT MAX(AUTHOR_ID) AS AUTHOR_ID FROM AUTHOR");
                 if (rs != null && rs.next()) {
                     return rs.getInt("AUTHOR_ID");
@@ -512,13 +493,12 @@ public class ManageMaterial extends javax.swing.JFrame {
     }
 
     private int createLocation() {
-        
+
         String floorStr = JOptionPane.showInputDialog(this, "Enter Floor Number (1-5):", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (floorStr == null) {
-            return 0; 
+            return 0;
         }
-        
-        
+
         int floor;
         try {
             floor = Integer.parseInt(floorStr);
@@ -530,23 +510,22 @@ public class ManageMaterial extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Please enter a valid number for floor.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
             return 0;
         }
-        
+
         String section = JOptionPane.showInputDialog(this, "Enter Section (e.g., A, B, Science, Fiction):", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (section == null || section.trim().isEmpty()) {
-            return 0; 
+            return 0;
         }
-        
+
         String shelf = JOptionPane.showInputDialog(this, "Enter Shelf Number or ID:", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (shelf == null || shelf.trim().isEmpty()) {
-            return 0; 
+            return 0;
         }
-        
+
         String rowStr = JOptionPane.showInputDialog(this, "Enter Row Number:", "Book Location", JOptionPane.QUESTION_MESSAGE);
         if (rowStr == null) {
-            return 0; 
+            return 0;
         }
-        
-        
+
         float row;
         try {
             row = Float.parseFloat(rowStr);
@@ -558,16 +537,16 @@ public class ManageMaterial extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Please enter a valid number for row.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
             return 0;
         }
-        
+
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                String insertQuery = "INSERT INTO LOCATION (FLOOR, SECTION, SHELF, ROW) " +
-                        "VALUES (" + floor + ", '" + section + "', '" + shelf + "', " + row + ")";
-                
+                String insertQuery = "INSERT INTO LOCATION (FLOOR, SECTION, SHELF, ROW) "
+                        + "VALUES (" + floor + ", '" + section + "', '" + shelf + "', " + row + ")";
+
                 DBManager.updateQuery(conn, insertQuery);
-                
+
                 ResultSet rs = DBManager.query(conn, "SELECT MAX(LOCATION_ID) AS LOCATION_ID FROM LOCATION");
                 if (rs != null && rs.next()) {
                     return rs.getInt("LOCATION_ID");
@@ -575,7 +554,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             }
         } catch (SQLException e) {
             System.out.println("Error creating location: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error creating location: " + e.getMessage(), 
+            JOptionPane.showMessageDialog(this, "Error creating location: " + e.getMessage(),
                     "Database Error", JOptionPane.ERROR_MESSAGE);
         } finally {
             DBManager.closeCon(conn);
@@ -586,57 +565,54 @@ public class ManageMaterial extends javax.swing.JFrame {
     private void updateBook() throws SQLException {
         int selectedRow = jTable2.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a book to update.", 
+            JOptionPane.showMessageDialog(this, "Please select a book to update.",
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         String isbn = (String) jTable2.getValueAt(selectedRow, 0);
         String currentTitle = (String) jTable2.getValueAt(selectedRow, 1);
         String currentCategory = (String) jTable2.getValueAt(selectedRow, 3);
         String currentStatus = (String) jTable2.getValueAt(selectedRow, 4);
-        
-        
+
         String newTitle = JOptionPane.showInputDialog(this, "Enter Updated Title:", currentTitle);
         if (newTitle == null) {
-            return; 
+            return;
         }
-        
+
         String newCategory = JOptionPane.showInputDialog(this, "Enter Updated Category:", currentCategory);
         if (newCategory == null) {
             return;
         }
-        
-        
+
         String[] statusOptions = {"Available", "Unavailable", "Reserved", "In Maintenance"};
         String newStatus = (String) JOptionPane.showInputDialog(
-                this, 
-                "Select Book Status:", 
-                "Update Book Status", 
-                JOptionPane.QUESTION_MESSAGE, 
-                null, 
-                statusOptions, 
+                this,
+                "Select Book Status:",
+                "Update Book Status",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                statusOptions,
                 currentStatus);
-        
+
         if (newStatus == null) {
             return;
         }
-        
-        
+
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                String updateQuery = "UPDATE BOOK SET TITLE = '" + newTitle + "', " +
-                        "CATEGORY = '" + newCategory + "', " +
-                        "STATUS = '" + newStatus + "' " +
-                        "WHERE ISBN = '" + isbn + "'";
-                
+                String updateQuery = "UPDATE BOOK SET TITLE = '" + newTitle + "', "
+                        + "CATEGORY = '" + newCategory + "', "
+                        + "STATUS = '" + newStatus + "' "
+                        + "WHERE ISBN = '" + isbn + "'";
+
                 int result = DBManager.updateQuery(conn, updateQuery);
-                
+
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Book updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    loadBooks(); 
+                    loadBooks();
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to update the book.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -649,44 +625,41 @@ public class ManageMaterial extends javax.swing.JFrame {
     private void deleteBook() throws SQLException {
         int selectedRow = jTable2.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a book to delete.", 
+            JOptionPane.showMessageDialog(this, "Please select a book to delete.",
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         String isbn = (String) jTable2.getValueAt(selectedRow, 0);
         String title = (String) jTable2.getValueAt(selectedRow, 1);
-        
-        
+
         if (isBookBorrowed(isbn)) {
-            JOptionPane.showMessageDialog(this, "This book is currently borrowed and cannot be deleted.", 
+            JOptionPane.showMessageDialog(this, "This book is currently borrowed and cannot be deleted.",
                     "Cannot Delete", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        
-        int confirm = JOptionPane.showConfirmDialog(this, 
-                "Are you sure you want to delete the book '" + title + "' (ISBN: " + isbn + ")?", 
-                "Confirm Deletion", 
-                JOptionPane.YES_NO_OPTION, 
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete the book '" + title + "' (ISBN: " + isbn + ")?",
+                "Confirm Deletion",
+                JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
-        
+
         if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
-        
-        
+
         Connection conn = null;
         try {
             conn = DBManager.openCon();
             if (conn != null) {
                 String deleteQuery = "DELETE FROM BOOK WHERE ISBN = '" + isbn + "'";
-                
+
                 int result = DBManager.updateQuery(conn, deleteQuery);
-                
+
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, "Book deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    loadBooks(); 
+                    loadBooks();
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to delete the book.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -701,11 +674,11 @@ public class ManageMaterial extends javax.swing.JFrame {
         try {
             conn = DBManager.openCon();
             if (conn != null) {
-                String query = "SELECT COUNT(*) AS COUNT FROM BORROW " +
-                        "WHERE BOOK_ID = '" + isbn + "' AND RETURN_DATE IS NULL";
-                
+                String query = "SELECT COUNT(*) AS COUNT FROM BORROW "
+                        + "WHERE BOOK_ID = '" + isbn + "' AND RETURN_DATE IS NULL";
+
                 ResultSet rs = DBManager.query(conn, query);
-                
+
                 if (rs != null && rs.next()) {
                     return rs.getInt("COUNT") > 0;
                 }

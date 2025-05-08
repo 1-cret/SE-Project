@@ -42,7 +42,7 @@
                       <Component id="jPanel3" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace pref="199" max="32767" attributes="0"/>
+                      <EmptySpace pref="182" max="32767" attributes="0"/>
                       <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="199" max="32767" attributes="0"/>
                   </Group>
@@ -264,7 +264,7 @@
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="18" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="User"/>
+                <Property name="text" type="java.lang.String" value="Users"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -359,7 +359,7 @@
                   <Component id="librarianSiderbarBtn" min="-2" pref="58" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="63" max="-2" attributes="0"/>
                   <Component id="studentSiderbarBtn" min="-2" pref="58" max="-2" attributes="0"/>
-                  <EmptySpace pref="207" max="32767" attributes="0"/>
+                  <EmptySpace pref="190" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
