@@ -585,7 +585,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             return;
         }
 
-        String[] statusOptions = {"Available", "Unavailable", "Reserved", "In Maintenance"};
+        String[] statusOptions = {"Available", "Unavailable"};
         String newStatus = (String) JOptionPane.showInputDialog(
                 this,
                 "Select Book Status:",
@@ -598,6 +598,8 @@ public class ManageMaterial extends javax.swing.JFrame {
         if (newStatus == null) {
             return;
         }
+        
+        Boolean updatedStatus = newStatus == "Available"? true : false;
 
         Connection conn = null;
         try {
@@ -605,7 +607,7 @@ public class ManageMaterial extends javax.swing.JFrame {
             if (conn != null) {
                 String updateQuery = "UPDATE BOOK SET TITLE = '" + newTitle + "', "
                         + "CATEGORY = '" + newCategory + "', "
-                        + "STATUS = '" + newStatus + "' "
+                        + "STATUS = " + updatedStatus + " "
                         + "WHERE ISBN = '" + isbn + "'";
 
                 int result = DBManager.updateQuery(conn, updateQuery);
